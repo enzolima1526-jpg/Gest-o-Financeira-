@@ -276,8 +276,8 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
 .tab-item.active .tab-active-dot{opacity:1;}
 
 /* FAB */
-.fab{position:fixed;right:20px;bottom:calc(var(--tab-h)+var(--safe-bottom)+10px);width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.5rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,137,123,.4);z-index:400;transition:transform .15s;}
-.fab:active{transform:scale(.9);}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tab-h)+var(--safe-bottom)+18px);width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.5rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,137,123,.4);z-index:400;transition:opacity .15s;}
+.fab:active{opacity:.85;}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(15,22,41,.4);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
@@ -814,18 +814,20 @@ function cardBill(cardId,year,mi){
 
 function cardLimitConsumed(cardId){
   let consumed=0;
-  // Installments: totalValue consumed, freed per paid invoice
+  // Installments: totalValue consumed upfront, each paid parcel frees parcelValue
   DB.installments.filter(i=>i.cardId===cardId).forEach(inst=>{
     const s=toAbs(inst.startYear,inst.startMonth);
     const e=s+inst.totalParcels-1;
-    let freed=0;
+    let paidParcels=0;
     for(let abs=s;abs<=Math.min(e,toAbs(CY,NOW.getMonth()));abs++){
       const y=Math.floor(abs/12),m=abs%12;
-      if(DB.invoiceStatuses[`${cardId}_${y}_${m}`]==='pago') freed+=inst.parcelValue;
+      if(DB.invoiceStatuses[`${cardId}_${y}_${m}`]==='pago') paidParcels++;
     }
-    consumed+=Math.max(0,inst.totalValue-freed);
+    // Total consumed = totalValue minus every parcel already paid
+    const remaining=inst.totalValue-(paidParcels*inst.parcelValue);
+    consumed+=remaining; // can go negative if overpaid — that's correct
   });
-  // Regular entries — freed when invoice paid
+  // Regular entries — each freed when that month's invoice is paid
   DB.entries.filter(e=>e.cardId===cardId&&e.type==='exp').forEach(e=>{
     if(DB.invoiceStatuses[`${cardId}_${e.year}_${e.month}`]!=='pago') consumed+=e.value;
   });
