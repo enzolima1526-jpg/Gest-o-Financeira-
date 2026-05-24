@@ -363,8 +363,50 @@ html,body{
 .info-box{background:var(--accent-light);border:1px solid rgba(0,137,123,.2);border-radius:10px;padding:10px 12px;margin-bottom:11px;font-size:.74rem;color:var(--accent2);line-height:1.5;}
 .hidden{display:none!important;}
 
+/* Income type buttons */
+.inc-type-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:11px 8px;border-radius:13px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;color:var(--text);}
+.inc-type-btn.selected{border-color:var(--accent);background:var(--accent-light);}
+.inc-type-btn.selected div:nth-child(2){color:var(--accent2);}
+
+/* Extra income category mini grid */
+.extra-cat-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:all .15s;}
+.extra-cat-btn.selected{border-color:var(--accent);background:var(--accent-light);}
+.extra-cat-btn-emoji{font-size:1.1rem;}
+.extra-cat-btn-label{font-size:.55rem;font-weight:600;color:var(--muted);text-align:center;line-height:1.2;}
+.extra-cat-btn.selected .extra-cat-btn-label{color:var(--accent2);}
+
 /* PDF states */
 #pdfLoading{text-align:center;padding:32px 0;}
+
+/* Recurring income type buttons */
+.ri-type-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:13px 8px;border-radius:13px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;color:var(--text);width:100%;}
+.ri-type-btn.selected{border-color:var(--accent);background:var(--accent-light);}
+.ri-type-label{font-size:.75rem;font-weight:700;margin-top:5px;color:var(--text);}
+.ri-type-btn.selected .ri-type-label{color:var(--accent2);}
+.ri-type-sub{font-size:.6rem;color:var(--muted);margin-top:2px;text-align:center;line-height:1.3;}
+
+/* Variável income categories */
+.ri-cat-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;transition:all .15s;}
+.ri-cat-btn.selected{border-color:var(--accent);background:var(--accent-light);}
+.ri-cat-btn-emoji{font-size:1.1rem;}
+.ri-cat-btn-label{font-size:.55rem;font-weight:600;color:var(--muted);text-align:center;line-height:1.2;}
+.ri-cat-btn.selected .ri-cat-btn-label{color:var(--accent2);}
+
+/* PRIVACY / EYE */
+.eye-btn{background:none;border:none;cursor:pointer;font-size:1.1rem;padding:4px 6px;border-radius:8px;color:var(--muted);transition:all .15s;line-height:1;flex-shrink:0;}
+.eye-btn:active{background:var(--bg);}
+.privacy-blur{filter:blur(7px);user-select:none;transition:filter .25s;}
+
+/* INVEST PILL (3rd pill on home) */
+.bhpill-invest{background:linear-gradient(135deg,rgba(0,137,123,.08),rgba(0,137,123,.04));border-color:rgba(0,137,123,.25);}
+.bhpill-invest .bhpill-lbl{color:var(--accent2);}
+.bhpill-invest .bhpill-val{color:var(--accent);}
+
+/* EXTRA INCOME QUICK ADD BUTTON */
+.extra-add-btn{display:inline-flex;align-items:center;gap:5px;background:var(--accent-light);border:1.5px solid var(--accent);color:var(--accent2);border-radius:18px;padding:4px 12px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+.extra-add-btn:active{opacity:.8;}
+.salary-quick-btn{display:inline-flex;align-items:center;gap:5px;background:#e8f5e9;border:1.5px solid #2e7d32;color:#1b5e20;border-radius:18px;padding:4px 12px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+.salary-quick-btn:active{opacity:.8;}
 </style>
 </head>
 <body>
@@ -399,6 +441,7 @@ html,body{
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl" id="ghGreeting">Bom dia</div><div class="ttl" id="ghName">...</div></div>
         <div class="page-hdr-right">
+          <button class="eye-btn" id="eyeBtn" onclick="togglePrivacy()" title="Ocultar valores">👁️</button>
           <div class="year-sel"><button class="year-arr" onclick="changeYear(-1)">‹</button><div class="year-lbl" id="homeYearLbl">2026</div><button class="year-arr" onclick="changeYear(1)">›</button></div>
           <button class="fab" id="fabBtn" onclick="openAdd()">+</button>
         </div>
@@ -409,6 +452,9 @@ html,body{
         <div class="bh-pills">
           <div class="bhpill"><div class="bhpill-lbl">↑ Receitas</div><div class="bhpill-val g" id="ghIncome">R$ 0,00</div></div>
           <div class="bhpill"><div class="bhpill-lbl">↓ Gastos</div><div class="bhpill-val r" id="ghExpense">R$ 0,00</div></div>
+        </div>
+        <div class="bh-pills" style="margin-top:8px;grid-template-columns:1fr;">
+          <div class="bhpill bhpill-invest"><div class="bhpill-lbl">📈 Total Investido</div><div class="bhpill-val" id="ghInvest">R$ 0,00</div></div>
         </div>
       </div>
       <div class="month-scroll" id="homeMonthScroll"></div>
@@ -498,9 +544,39 @@ html,body{
         <button class="type-tab" id="tt-inc" onclick="setAddType('inc')">💰 Receita</button>
         <button class="type-tab" id="tt-inst" onclick="setAddType('inst')">🔄 Parcela</button>
       </div>
+
+      <!-- INCOME QUICK OPTIONS (só aparece no tab Receita) -->
+      <div id="incQuickSection" class="hidden">
+        <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">Tipo de Receita</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px;" id="incTypeGrid">
+          <button class="inc-type-btn selected" id="iqt-extra" onclick="setIncType('extra')">
+            <div style="font-size:1.3rem">💵</div>
+            <div style="font-size:.73rem;font-weight:700;margin-top:3px">Renda Extra</div>
+            <div style="font-size:.6rem;color:var(--muted);margin-top:1px">Pontual, este mês</div>
+          </button>
+          <button class="inc-type-btn" id="iqt-salary" onclick="setIncType('salary')">
+            <div style="font-size:1.3rem">💼</div>
+            <div style="font-size:.73rem;font-weight:700;margin-top:3px">Salário Fixo</div>
+            <div style="font-size:.6rem;color:var(--muted);margin-top:1px">Repete todo mês</div>
+          </button>
+        </div>
+        <!-- Extra income categories -->
+        <div id="extraCatSection">
+          <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">Categoria</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:11px;" id="extraCatGrid"></div>
+        </div>
+        <!-- Salary info box (oculto por padrão) -->
+        <div id="salaryInfoBox" class="hidden">
+          <div class="info-box">💼 O <strong>salário fixo</strong> será adicionado automaticamente todo mês a partir do mês atual. Você pode ajustar o valor de qualquer mês depois.</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Dia do pagamento</label><input class="form-input" id="fSalaryDay" type="number" placeholder="Ex: 5" min="1" max="31" inputmode="numeric"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="fDesc" placeholder="Ex: Mercado, Salário..."></div>
       <div id="fValGroup" class="form-group"><label class="form-label">Valor (R$)</label><input class="form-input" id="fVal" type="number" placeholder="0,00" min="0" step="0.01" inputmode="decimal"></div>
-      <div class="form-group"><label class="form-label">Categoria</label><div class="cat-grid" id="catGrid"></div></div>
+      <div class="form-group" id="fCatGroup"><label class="form-label">Categoria</label><div class="cat-grid" id="catGrid"></div></div>
       <div class="form-group" id="fCardGroup"><label class="form-label">Cartão (opcional)</label><select class="form-select" id="fCard"><option value="">Sem cartão</option></select></div>
       <div id="instExtra" class="hidden">
         <div class="info-box">💡 Informe o <strong>valor total</strong> da compra. O app divide e consome o <strong>limite completo</strong> imediatamente. Conforme as faturas forem pagas, o limite é liberado.</div>
@@ -523,25 +599,35 @@ html,body{
     <div class="modal-handle"></div>
     <div class="modal-header"><div class="modal-title" id="incomeModalTitle">Nova Receita Recorrente</div><button class="modal-close" onclick="closeIncomeModal()">✕</button></div>
     <div class="modal-body">
-      <div class="info-box">💡 Receitas recorrentes aparecem automaticamente todo mês. Você pode editar o valor de qualquer mês se ele variar.</div>
-      <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="riDesc" placeholder="Ex: Salário, Aluguel, Freelance..."></div>
+      <!-- Tipo de receita recorrente -->
+      <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">Tipo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <button class="ri-type-btn selected" id="rit-salario" onclick="setRiType('salario')">
+          <div style="font-size:1.4rem">💼</div>
+          <div class="ri-type-label">Salário Fixo</div>
+          <div class="ri-type-sub">Cai todo mês, valor fixo</div>
+        </button>
+        <button class="ri-type-btn" id="rit-variavel" onclick="setRiType('variavel')">
+          <div style="font-size:1.4rem">💰</div>
+          <div class="ri-type-label">Renda Variável</div>
+          <div class="ri-type-sub">Freelance, aluguel, outros</div>
+        </button>
+      </div>
+      <!-- Categoria (só renda variável) -->
+      <div id="riCatSection">
+        <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;">Categoria</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:11px;" id="riCatGrid"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="riDesc" placeholder="Ex: Salário CLT, Freelance mensal..."></div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Valor Padrão (R$)</label><input class="form-input" id="riValue" type="number" placeholder="Ex: 3500,00" min="0" step="0.01" inputmode="decimal"></div>
-        <div class="form-group"><label class="form-label">Dia do mês</label><input class="form-input" id="riDay" type="number" placeholder="Ex: 5" min="1" max="31" inputmode="numeric"></div>
+        <div class="form-group"><label class="form-label">Valor (R$)</label><input class="form-input" id="riValue" type="number" placeholder="Ex: 3500,00" min="0" step="0.01" inputmode="decimal"></div>
+        <div class="form-group"><label class="form-label">Dia de pagamento</label><input class="form-input" id="riDay" type="number" placeholder="Ex: 5" min="1" max="31" inputmode="numeric"></div>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Mês início</label><select class="form-select" id="riStartMonth"></select></div>
         <div class="form-group"><label class="form-label">Ano início</label><select class="form-select" id="riStartYear"></select></div>
       </div>
-      <div class="form-group"><label class="form-label">Categoria</label>
-        <select class="form-select" id="riCat">
-          <option value="salario">💼 Salário</option>
-          <option value="freelance">💻 Freelance</option>
-          <option value="aluguel">🏠 Aluguel recebido</option>
-          <option value="investimento">📈 Rendimento</option>
-          <option value="outros">📦 Outros</option>
-        </select>
-      </div>
+      <input type="hidden" id="riCatValue" value="salario">
       <button class="btn-primary" onclick="saveRecurringIncome()">Salvar</button>
       <button class="btn-danger hidden" id="riDeleteBtn" onclick="deleteRecurringIncome()">Excluir Receita Recorrente</button>
     </div>
@@ -626,15 +712,19 @@ html,body{
 
       <!-- CAPITALIZAÇÃO fields -->
       <div id="iCapFields" class="hidden">
-        <div class="info-box">🎰 Para capitalização: informe o valor mensal e a data de início. O app calcula automaticamente o total investido até hoje.</div>
+        <div class="info-box">🎰 Informe a data do <strong>1º débito</strong> (ex: dia 4) e o dia recorrente dos meses seguintes (ex: dia 7). O app calcula automaticamente quantas parcelas já foram debitadas.</div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Valor Mensal (R$)</label><input class="form-input" id="iCapMonthly" type="number" placeholder="Ex: 120,00" min="0" step="0.01" inputmode="decimal"></div>
-          <div class="form-group"><label class="form-label">Total de Meses</label><input class="form-input" id="iCapMonths" type="number" placeholder="Ex: 60" min="1" inputmode="numeric"></div>
+          <div class="form-group"><label class="form-label">Valor Mensal (R$)</label><input class="form-input" id="iCapMonthly" type="number" placeholder="Ex: 120,00" min="0" step="0.01" inputmode="decimal" oninput="updateCapPreview()"></div>
+          <div class="form-group"><label class="form-label">Total de Meses</label><input class="form-input" id="iCapMonths" type="number" placeholder="Ex: 60" min="1" inputmode="numeric" oninput="updateCapPreview()"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Início</label><input class="form-input" id="iCapStartDate" type="date"></div>
+          <div class="form-group"><label class="form-label">Data do 1º débito</label><input class="form-input" id="iCapFirstDate" type="date" onchange="updateCapPreview()"></div>
+          <div class="form-group"><label class="form-label">Dia dos meses seguintes</label><input class="form-input" id="iCapPayDay" type="number" placeholder="Ex: 7" min="1" max="31" inputmode="numeric" oninput="updateCapPreview()"></div>
+        </div>
+        <div class="form-row">
           <div class="form-group"><label class="form-label">Rentabilidade (% a.a.)</label><input class="form-input" id="iCapRate" type="number" placeholder="Ex: 8,5" step="0.01" inputmode="decimal"></div>
         </div>
+        <div id="capPreviewBox" style="background:var(--accent-light);border:1px solid rgba(0,137,123,.2);border-radius:10px;padding:10px 12px;margin-bottom:11px;font-size:.74rem;color:var(--accent2);line-height:1.6;display:none;"></div>
       </div>
 
       <!-- STANDARD fields -->
@@ -771,6 +861,8 @@ const KEY='financas_v10'; // SAME KEY — seus dados estão preservados!
 const NOW=new Date();
 const CY=NOW.getFullYear();
 const YEARS=[];for(let y=2022;y<=CY+1;y++)YEARS.push(y);
+
+const RI_CATS_EMOJI={salario:'💼',freelance:'💻',aluguel:'🏠',investimento:'📈',comissao:'🤝',pensao:'👨‍👩‍👧',beneficio:'🏛️',outros:'📦'};
 
 // ════════════════════════════════════════
 //  DATA
@@ -921,16 +1013,49 @@ function isInvoiceClosed(card,year,month){if(!card.closeDay)return false;return 
 // ════════════════════════════════════════
 //  INVESTMENT CALCULATIONS
 // ════════════════════════════════════════
+function calcCapitalizacaoMonths(inv){
+  // Returns how many payments have been debited so far
+  if(!inv.capFirstDate) return 0;
+  const now = new Date();
+  const firstDate = new Date(inv.capFirstDate + 'T00:00:00');
+  if(now < firstDate) return 0; // first payment hasn't happened yet
+
+  // First payment is always 1
+  let count = 1;
+  const payDay = inv.capPayDay || parseInt(inv.capFirstDate.split('-')[2]) || 1;
+
+  // Count subsequent months: month 2 onwards use payDay
+  // Start from month after firstDate
+  let checkYear = firstDate.getFullYear();
+  let checkMonth = firstDate.getMonth() + 1; // next month after first payment
+  if(checkMonth > 11){ checkMonth = 0; checkYear++; }
+
+  while(true){
+    // Payment date for this month
+    const payDate = new Date(checkYear, checkMonth, Math.min(payDay, new Date(checkYear, checkMonth+1, 0).getDate()));
+    if(payDate > now) break;
+    count++;
+    // Enforce cap
+    if(inv.capMonths && count >= inv.capMonths) break;
+    checkMonth++;
+    if(checkMonth > 11){ checkMonth = 0; checkYear++; }
+    // Safety: don't loop forever
+    if(count > 600) break;
+  }
+  return inv.capMonths ? Math.min(count, inv.capMonths) : count;
+}
+
 function calcInvestment(inv){
-  if(inv.type==='Capitalização'&&inv.capMonthly&&inv.capStartDate){
-    const start=new Date(inv.capStartDate+'T00:00:00');
-    const now=new Date();
-    // months paid = full months between start and now
-    const monthsPaid=Math.max(0,(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth()));
+  if(inv.type==='Capitalização'&&inv.capMonthly&&(inv.capFirstDate||inv.capStartDate)){
+    const monthsPaid = inv.capFirstDate ? calcCapitalizacaoMonths(inv) : (function(){
+      // legacy: capStartDate fallback
+      const start=new Date(inv.capStartDate+'T00:00:00');
+      const now=new Date();
+      return Math.max(0,(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth()));
+    })();
     const totalPaid=monthsPaid*inv.capMonthly;
     const totalContract=inv.capMonths?inv.capMonths*inv.capMonthly:totalPaid;
     const rate=inv.capRate||0;
-    // Simple interest approximation
     const returnAmt=rate>0?totalPaid*(rate/100)*(monthsPaid/12):0;
     return{invested:totalPaid,current:totalPaid+returnAmt,monthsPaid,totalContract,isCapitalizacao:true};
   }
@@ -964,6 +1089,11 @@ function renderHome(){
   ba.className='bh-amount'+(t.balance<0?' neg':'');
   document.getElementById('ghIncome').textContent=fmt(t.income);
   document.getElementById('ghExpense').textContent=fmt(t.expense);
+  // Invest total
+  const invs=DB.investments||[];
+  let totalInvested=0;invs.forEach(i=>{const c=calcInvestment(i);totalInvested+=c.invested;});
+  const ghInv=document.getElementById('ghInvest');
+  if(ghInv)ghInv.textContent=fmt(totalInvested);
   const av=document.getElementById('ghAvatar');
   av.innerHTML=p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.name?p.name.charAt(0).toUpperCase():'?');
 
@@ -1002,19 +1132,44 @@ function renderHome(){
 
   // Recurring income section
   const recs=recurringForYearMonth(currentYear,currentMonth);
-  if(recs.length){
-    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💼 Receitas Recorrentes</div><button class="sr-action" onclick="openAddIncome()">+ Nova</button></div><div class="gcard">`;
-    recs.forEach(r=>{
+  const salaryRecs=recs.filter(r=>{const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);return ri&&ri.cat==='salario';});
+  const varRecs=recs.filter(r=>{const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);return !ri||ri.cat!=='salario';});
+
+  // Salário — seção melhorada
+  if(salaryRecs.length){
+    const salTotal=salaryRecs.reduce((s,r)=>s+r.value,0);
+    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💼 Salário</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:.72rem;font-weight:700;color:var(--green)">${fmt(salTotal)}</span><button class="salary-quick-btn" onclick="openAddIncome()">+ Adicionar</button></div></div><div class="gcard">`;
+    salaryRecs.forEach(r=>{
       const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);
       html+=`<div class="income-row" onclick="openEditRecurring('${r.recurringId}',${currentYear},${currentMonth})">
         <div class="entry-icon" style="background:#e8f5e9">💼</div>
-        <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Recorrente · todo mês${ri&&ri.day?` · dia ${ri.day}`:''}</div></div>
-        <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div><div style="font-size:.6rem;color:var(--muted)">Toque p/ editar</div></div>
+        <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Fixo todo mês${ri&&ri.day?` · cai dia ${ri.day}`:''}</div></div>
+        <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div><div style="font-size:.6rem;color:var(--muted)">Toque p/ ajustar</div></div>
       </div>`;
     });
     html+=`</div></div>`;
   } else {
-    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💼 Receitas Recorrentes</div><button class="sr-action" onclick="openAddIncome()">+ Adicionar</button></div></div>`;
+    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💼 Salário</div></div>
+    <div style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:1.5px dashed #66bb6a;border-radius:14px;padding:14px 16px;margin:0 18px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div><div style="font-size:.82rem;font-weight:700;color:#2e7d32">Cadastre seu salário</div><div style="font-size:.68rem;color:#558b2f;margin-top:2px">Aparece todo mês automaticamente</div></div>
+      <button class="salary-quick-btn" onclick="openAddIncome()">+ Cadastrar</button>
+    </div></div>`;
+  }
+
+  // Rendas variáveis recorrentes
+  if(varRecs.length){
+    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💰 Renda Variável Recorrente</div><button class="salary-quick-btn" onclick="openAddIncome()">+ Nova</button></div><div class="gcard">`;
+    varRecs.forEach(r=>{
+      const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);
+      const cat=ri?ri.cat:'outros';
+      const emoji=RI_CATS_EMOJI[cat]||'💰';
+      html+=`<div class="income-row" onclick="openEditRecurring('${r.recurringId}',${currentYear},${currentMonth})">
+        <div class="entry-icon" style="background:#fff8e1">${emoji}</div>
+        <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Recorrente${ri&&ri.day?` · todo mês dia ${ri.day}`:''}</div></div>
+        <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div><div style="font-size:.6rem;color:var(--muted)">Toque p/ ajustar</div></div>
+      </div>`;
+    });
+    html+=`</div></div>`;
   }
 
   html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">Gastos</div><div class="sec-right">${exps.length} · ${fmt(exps.reduce((s,e)=>s+e.value,0))}</div></div><div class="gcard">`;
@@ -1022,11 +1177,18 @@ function renderHome(){
   else exps.forEach(e=>{html+=eRow(e);});
   html+=`</div></div>`;
 
-  html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">Receitas</div><div class="sec-right">${incs.filter(i=>!i.isRecurring).length} itens</div></div><div class="gcard">`;
+  // Rendas extras melhoradas
   const manualIncs=incs.filter(i=>!i.isRecurring);
-  if(!manualIncs.length)html+=`<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhuma receita manual em ${MONTHS[currentMonth]}</div></div>`;
-  else manualIncs.forEach(e=>{html+=eRow(e);});
-  html+=`</div></div>`;
+  const extraTotal=manualIncs.reduce((s,e)=>s+e.value,0);
+  html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💵 Rendas Extras</div><div style="display:flex;align-items:center;gap:6px;">${manualIncs.length?`<span style="font-size:.72rem;font-weight:700;color:var(--green)">${fmt(extraTotal)}</span>`:''}<button class="extra-add-btn" onclick="openAddExtra()">+ Adicionar</button></div></div>`;
+  if(!manualIncs.length){
+    html+=`<div style="background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px dashed #ffc107;border-radius:14px;padding:14px 16px;margin:0 18px 11px;"><div style="font-size:.8rem;font-weight:600;color:#795548;margin-bottom:4px">Nenhuma renda extra em ${MONTHS[currentMonth]}</div><div style="font-size:.67rem;color:#a1887f">Freelance, bônus, vendas, presentes...</div></div>`;
+  } else {
+    html+=`<div class="gcard">`;
+    manualIncs.forEach(e=>{html+=eRow(e);});
+    html+=`</div>`;
+  }
+  html+=`</div>`;
 
   document.getElementById('homeContent').innerHTML=html;
 
@@ -1037,6 +1199,8 @@ function renderHome(){
     chartInst=new Chart(ctx,{type:'doughnut',data:{labels:ck.map(k=>getCat(k).label),datasets:[{data:ck.map(k=>cm[k]),backgroundColor:colors,borderColor:'#ffffff',borderWidth:2,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)}`}}}}});
     document.getElementById('chartLegend').innerHTML=ck.map((k,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>${getCat(k).label}: ${fmt(cm[k])}</div>`).join('');
   }
+  // Apply privacy if active
+  if(privacyMode) applyPrivacyBlur();
 }
 
 function eRow(e){
@@ -1417,7 +1581,7 @@ function updateInstPreview(){
   else prev.textContent='';
 }
 function openAdd(){
-  selectedCat='outros';
+  selectedCat='outros';selectedExtraCat='freelance';currentIncType='extra';
   document.getElementById('fCard').innerHTML='<option value="">Sem cartão</option>'+DB.cards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   document.getElementById('fStartMonth').innerHTML=MONTHS.map((m,i)=>`<option value="${i}"${i===currentMonth?' selected':''}>${m}</option>`).join('');
   document.getElementById('fStartYear').innerHTML=YEARS.map(y=>`<option value="${y}"${y===currentYear?' selected':''}>${y}</option>`).join('');
@@ -1425,13 +1589,64 @@ function openAdd(){
   document.getElementById('addModal').classList.add('open');
 }
 function closeAdd(){document.getElementById('addModal').classList.remove('open');resetForm();}
-function resetForm(){document.getElementById('fDesc').value='';document.getElementById('fVal').value='';document.getElementById('fParcels').value='';document.getElementById('fInstTotal').value='';document.getElementById('fInstPreview').textContent='';setAddType('exp');}
+function resetForm(){
+  document.getElementById('fDesc').value='';document.getElementById('fVal').value='';
+  document.getElementById('fParcels').value='';document.getElementById('fInstTotal').value='';
+  document.getElementById('fInstPreview').textContent='';
+  const sd=document.getElementById('fSalaryDay');if(sd)sd.value='';
+  setAddType('exp');
+}
+
+const EXTRA_CATS=[
+  {id:'freelance',label:'Freelance',emoji:'💻'},
+  {id:'bonus',label:'Bônus',emoji:'🎁'},
+  {id:'vendas',label:'Vendas',emoji:'🛍️'},
+  {id:'aluguel',label:'Aluguel',emoji:'🏠'},
+  {id:'dividendos',label:'Dividendos',emoji:'📈'},
+  {id:'presente',label:'Presente',emoji:'🎀'},
+  {id:'reembolso',label:'Reembolso',emoji:'↩️'},
+  {id:'outros_inc',label:'Outros',emoji:'💡'},
+];
+let selectedExtraCat='freelance';
+let currentIncType='extra'; // 'extra' | 'salary'
+
+function buildExtraCatGrid(sel){
+  return EXTRA_CATS.map(c=>`<button class="extra-cat-btn${sel===c.id?' selected':''}" onclick="selectExtraCat('${c.id}')"><div class="extra-cat-btn-emoji">${c.emoji}</div><div class="extra-cat-btn-label">${c.label}</div></button>`).join('');
+}
+function selectExtraCat(id){selectedExtraCat=id;document.getElementById('extraCatGrid').innerHTML=buildExtraCatGrid(id);}
+
+function setIncType(t){
+  currentIncType=t;
+  document.querySelectorAll('.inc-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('iqt-'+t).classList.add('selected');
+  const isSalary=t==='salary';
+  document.getElementById('extraCatSection').classList.toggle('hidden',isSalary);
+  document.getElementById('salaryInfoBox').classList.toggle('hidden',!isSalary);
+  document.getElementById('fDesc').placeholder=isSalary?'Ex: Salário CLT, Salário PJ...':'Ex: Freelance site, Bônus, Venda carro...';
+}
+
 function setAddType(t){
   addType=t;
   document.querySelectorAll('.type-tab').forEach(b=>b.classList.remove('active'));
   document.getElementById(`tt-${t}`).classList.add('active');
   document.getElementById('instExtra').classList.toggle('hidden',t!=='inst');
   document.getElementById('fValGroup').classList.toggle('hidden',t==='inst');
+  document.getElementById('fCatGroup').classList.toggle('hidden',t==='inc');
+  document.getElementById('fCardGroup').classList.toggle('hidden',t==='inc');
+  const isInc=t==='inc';
+  document.getElementById('incQuickSection').classList.toggle('hidden',!isInc);
+  if(isInc){
+    // reset inc type to extra
+    currentIncType='extra';
+    document.querySelectorAll('.inc-type-btn').forEach(b=>b.classList.remove('selected'));
+    document.getElementById('iqt-extra').classList.add('selected');
+    document.getElementById('extraCatSection').classList.remove('hidden');
+    document.getElementById('salaryInfoBox').classList.add('hidden');
+    document.getElementById('extraCatGrid').innerHTML=buildExtraCatGrid(selectedExtraCat);
+    document.getElementById('fDesc').placeholder='Ex: Freelance, Bônus, Venda...';
+  } else {
+    document.getElementById('fDesc').placeholder='Ex: Mercado, Salário...';
+  }
 }
 function addEntry(){
   const desc=document.getElementById('fDesc').value.trim();
@@ -1446,6 +1661,19 @@ function addEntry(){
     if(!totalVal||totalVal<=0){alert('Informe o valor total');return;}
     if(!parcels||parcels<2){alert('Mínimo 2 parcelas');return;}
     DB.installments.push({id:uid(),desc,totalValue:totalVal,parcelValue:totalVal/parcels,cat,cardId,startMonth,startYear,totalParcels:parcels});
+  } else if(addType==='inc'){
+    const val=parseFloat(document.getElementById('fVal').value);
+    if(isNaN(val)||val<=0){alert('Informe o valor!');return;}
+    if(currentIncType==='salary'){
+      // Save as recurring income (salary)
+      const day=parseInt(document.getElementById('fSalaryDay').value)||null;
+      if(!DB.recurringIncome)DB.recurringIncome=[];
+      DB.recurringIncome.push({id:uid(),desc,value:val,day,cat:'salario',startMonth:currentMonth,startYear:currentYear,overrides:{}});
+    } else {
+      // Extra income — one-time entry
+      const eCat=selectedExtraCat==='outros_inc'?'outros':selectedExtraCat;
+      DB.entries.push({id:uid(),month:currentMonth,year:currentYear,desc,value:val,cat:eCat,type:'inc',cardId:null});
+    }
   } else {
     const val=parseFloat(document.getElementById('fVal').value);
     if(isNaN(val)||val<=0){alert('Informe o valor!');return;}
@@ -1457,29 +1685,66 @@ function addEntry(){
 // ════════════════════════════════════════
 //  RECURRING INCOME
 // ════════════════════════════════════════
+const RI_CATS=[
+  {id:'salario',label:'Salário',emoji:'💼'},
+  {id:'freelance',label:'Freelance',emoji:'💻'},
+  {id:'aluguel',label:'Aluguel',emoji:'🏠'},
+  {id:'investimento',label:'Rendimento',emoji:'📈'},
+  {id:'comissao',label:'Comissão',emoji:'🤝'},
+  {id:'pensao',label:'Pensão',emoji:'👨‍👩‍👧'},
+  {id:'beneficio',label:'Benefício',emoji:'🏛️'},
+  {id:'outros',label:'Outros',emoji:'📦'},
+];
+let currentRiType='salario';
+let selectedRiCat='freelance';
+
+function buildRiCatGrid(sel){
+  return RI_CATS.filter(c=>c.id!=='salario').map(c=>`<button class="ri-cat-btn${sel===c.id?' selected':''}" onclick="selectRiCat('${c.id}')"><div class="ri-cat-btn-emoji">${c.emoji}</div><div class="ri-cat-btn-label">${c.label}</div></button>`).join('');
+}
+function selectRiCat(id){selectedRiCat=id;document.getElementById('riCatValue').value=id;document.getElementById('riCatGrid').innerHTML=buildRiCatGrid(id);}
+function setRiType(t){
+  currentRiType=t;
+  document.querySelectorAll('.ri-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('rit-'+t).classList.add('selected');
+  const isSalario=t==='salario';
+  document.getElementById('riCatSection').classList.toggle('hidden',isSalario);
+  document.getElementById('riCatValue').value=isSalario?'salario':selectedRiCat;
+  document.getElementById('riDesc').placeholder=isSalario?'Ex: Salário CLT, Salário PJ...':'Ex: Freelance mensal, Aluguel recebido...';
+}
+
 function openAddIncome(){
   editingIncomeId=null;
+  currentRiType='salario';selectedRiCat='freelance';
   document.getElementById('incomeModalTitle').textContent='Nova Receita Recorrente';
-  document.getElementById('riDesc').value='';
-  document.getElementById('riValue').value='';
-  document.getElementById('riDay').value='';
-  document.getElementById('riCat').value='salario';
+  document.getElementById('riDesc').value='';document.getElementById('riValue').value='';document.getElementById('riDay').value='';
+  document.getElementById('riCatValue').value='salario';
+  document.getElementById('riCatGrid').innerHTML=buildRiCatGrid('freelance');
   document.getElementById('riStartMonth').innerHTML=MONTHS.map((m,i)=>`<option value="${i}"${i===currentMonth?' selected':''}>${m}</option>`).join('');
   document.getElementById('riStartYear').innerHTML=YEARS.map(y=>`<option value="${y}"${y===currentYear?' selected':''}>${y}</option>`).join('');
   document.getElementById('riDeleteBtn').classList.add('hidden');
+  // reset type buttons
+  document.querySelectorAll('.ri-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('rit-salario').classList.add('selected');
+  document.getElementById('riCatSection').classList.add('hidden');
+  document.getElementById('riDesc').placeholder='Ex: Salário CLT, Salário PJ...';
   document.getElementById('incomeModal').classList.add('open');
 }
 function openEditIncomeById(id){
   const r=(DB.recurringIncome||[]).find(x=>x.id===id);if(!r)return;
   editingIncomeId=id;
+  const isSalario=r.cat==='salario';
+  currentRiType=isSalario?'salario':'variavel';
+  selectedRiCat=isSalario?'freelance':(r.cat||'freelance');
   document.getElementById('incomeModalTitle').textContent='Editar Receita Recorrente';
-  document.getElementById('riDesc').value=r.desc||'';
-  document.getElementById('riValue').value=r.value||'';
-  document.getElementById('riDay').value=r.day||'';
-  document.getElementById('riCat').value=r.cat||'salario';
+  document.getElementById('riDesc').value=r.desc||'';document.getElementById('riValue').value=r.value||'';document.getElementById('riDay').value=r.day||'';
+  document.getElementById('riCatValue').value=r.cat||'salario';
+  document.getElementById('riCatGrid').innerHTML=buildRiCatGrid(selectedRiCat);
+  document.getElementById('riCatSection').classList.toggle('hidden',isSalario);
   document.getElementById('riStartMonth').innerHTML=MONTHS.map((m,i)=>`<option value="${i}"${i===r.startMonth?' selected':''}>${m}</option>`).join('');
   document.getElementById('riStartYear').innerHTML=YEARS.map(y=>`<option value="${y}"${y===r.startYear?' selected':''}>${y}</option>`).join('');
   document.getElementById('riDeleteBtn').classList.remove('hidden');
+  document.querySelectorAll('.ri-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById(isSalario?'rit-salario':'rit-variavel').classList.add('selected');
   document.getElementById('incomeModal').classList.add('open');
 }
 function openEditRecurring(rid,year,month){
@@ -1504,7 +1769,7 @@ function saveRecurringIncome(){
   const desc=document.getElementById('riDesc').value.trim();
   const value=parseFloat(document.getElementById('riValue').value);
   const day=parseInt(document.getElementById('riDay').value)||null;
-  const cat=document.getElementById('riCat').value;
+  const cat=document.getElementById('riCatValue').value||'salario';
   const startMonth=parseInt(document.getElementById('riStartMonth').value);
   const startYear=parseInt(document.getElementById('riStartYear').value);
   if(!desc||isNaN(value)||value<=0){alert('Preencha descrição e valor');return;}
@@ -1713,6 +1978,23 @@ function applyInvoiceStatus(cid,y,m,s){setInvoiceStatus(cid,y,m,s);closeInvoiceM
 // ════════════════════════════════════════
 //  INVESTMENTS MODAL
 // ════════════════════════════════════════
+function updateCapPreview(){
+  const monthly=parseFloat(document.getElementById('iCapMonthly').value)||0;
+  const months=parseInt(document.getElementById('iCapMonths').value)||0;
+  const firstDate=document.getElementById('iCapFirstDate').value;
+  const payDay=parseInt(document.getElementById('iCapPayDay').value)||0;
+  const box=document.getElementById('capPreviewBox');
+  if(!monthly||!firstDate){box.style.display='none';return;}
+  // Build a temp inv to calculate
+  const tempInv={type:'Capitalização',capMonthly:monthly,capMonths:months||null,capFirstDate:firstDate,capPayDay:payDay||null,capRate:0};
+  const c=calcInvestment(tempInv);
+  const totalContract=months?months*monthly:null;
+  const firstD=new Date(firstDate+'T00:00:00');
+  box.style.display='block';
+  box.innerHTML=`📅 1º débito: <strong>${firstD.toLocaleDateString('pt-BR')}</strong>${payDay?` · Recorrente: dia <strong>${payDay}</strong> todo mês`:''}
+<br>✅ Parcelas já debitadas: <strong>${c.monthsPaid}</strong>${months?` de ${months}`:''}
+<br>💰 Total já pago: <strong>${fmt(c.invested)}</strong>${totalContract?` de ${fmt(totalContract)} total`:''}`;
+}
 function updateInvestFields(){
   const type=document.getElementById('iType').value;
   const isCap=type==='Capitalização';
@@ -1721,9 +2003,10 @@ function updateInvestFields(){
 }
 function openAddInvest(){
   editingInvestId=null;document.getElementById('investModalTitle').textContent='Novo Investimento';
-  ['iDesc','iBank','iValue','iRate','iCurrent','iCapMonthly','iCapMonths','iCapRate'].forEach(id=>document.getElementById(id).value='');
+  ['iDesc','iBank','iValue','iRate','iCurrent','iCapMonthly','iCapMonths','iCapRate','iCapPayDay'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('iDate').value=new Date().toISOString().split('T')[0];
-  document.getElementById('iCapStartDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('iCapFirstDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('capPreviewBox').style.display='none';
   document.getElementById('iType').value='CDB';updateInvestFields();
   document.getElementById('investDeleteBtn').classList.add('hidden');document.getElementById('investModal').classList.add('open');
 }
@@ -1734,10 +2017,15 @@ function openEditInvest(id){
   document.getElementById('iDesc').value=inv.desc||'';document.getElementById('iBank').value=inv.bank||'';
   if(inv.type==='Capitalização'){
     document.getElementById('iCapMonthly').value=inv.capMonthly||'';document.getElementById('iCapMonths').value=inv.capMonths||'';
-    document.getElementById('iCapStartDate').value=inv.capStartDate||'';document.getElementById('iCapRate').value=inv.capRate||'';
+    // Support both new (capFirstDate) and legacy (capStartDate) fields
+    document.getElementById('iCapFirstDate').value=inv.capFirstDate||inv.capStartDate||'';
+    document.getElementById('iCapPayDay').value=inv.capPayDay||'';
+    document.getElementById('iCapRate').value=inv.capRate||'';
+    updateCapPreview();
   } else {
     document.getElementById('iValue').value=inv.value||'';document.getElementById('iCurrent').value=inv.current||'';
     document.getElementById('iDate').value=inv.date||'';document.getElementById('iRate').value=inv.rate||'';
+    document.getElementById('capPreviewBox').style.display='none';
   }
   document.getElementById('investDeleteBtn').classList.remove('hidden');document.getElementById('investModal').classList.add('open');
 }
@@ -1750,7 +2038,8 @@ function saveInvest(){
   if(type==='Capitalização'){
     data.capMonthly=parseFloat(document.getElementById('iCapMonthly').value)||0;
     data.capMonths=parseInt(document.getElementById('iCapMonths').value)||0;
-    data.capStartDate=document.getElementById('iCapStartDate').value;
+    data.capFirstDate=document.getElementById('iCapFirstDate').value;
+    data.capPayDay=parseInt(document.getElementById('iCapPayDay').value)||null;
     data.capRate=parseFloat(document.getElementById('iCapRate').value)||0;
   } else {
     data.value=parseFloat(document.getElementById('iValue').value)||0;
@@ -1899,6 +2188,38 @@ function clearAll(){if(!confirm('Apagar TODOS os dados?'))return;const p=DB.prof
 ['addModal','detailModal','goalModal','cardModal','invoiceModal','investModal','pdfModal','incomeModal','editProfileModal'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 });
+
+// ════════════════════════════════════════
+//  PRIVACY MODE (olho)
+// ════════════════════════════════════════
+let privacyMode=false;
+function togglePrivacy(){
+  privacyMode=!privacyMode;
+  const btn=document.getElementById('eyeBtn');
+  if(btn)btn.textContent=privacyMode?'🙈':'👁️';
+  if(privacyMode) applyPrivacyBlur();
+  else removePrivacyBlur();
+}
+function applyPrivacyBlur(){
+  // Blur all monetary values and sensitive fields on home screen
+  const sel='#ghBalance,#ghIncome,#ghExpense,#ghInvest,.bh-amount,.bhpill-val,.inv-amt,.entry-amount,.cs-total,.cs-item-val,.is-pill-val,.bhpill-invest .bhpill-val';
+  document.querySelectorAll(sel).forEach(el=>el.classList.add('privacy-blur'));
+}
+function removePrivacyBlur(){
+  document.querySelectorAll('.privacy-blur').forEach(el=>el.classList.remove('privacy-blur'));
+}
+
+// ════════════════════════════════════════
+//  OPEN ADD EXTRA (atalho renda extra)
+// ════════════════════════════════════════
+function openAddExtra(){
+  openAdd();
+  // Pequeno delay para o modal abrir e então mudar para aba receita
+  setTimeout(()=>{
+    setAddType('inc');
+    setIncType('extra');
+  },80);
+}
 
 checkWelcome();
 
