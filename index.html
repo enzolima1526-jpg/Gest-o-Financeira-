@@ -267,7 +267,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
 .tab-item.active{background:rgba(0,137,123,.11);}
 .tab-icon{font-size:1.15rem;line-height:1;transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
 .tab-item.active .tab-icon{transform:scale(1.18) translateY(-1px);}
-.tab-label{font-size:.55rem;font-weight:500;color:var(--muted);transition:color .18s,font-weight .18s;}
+.tab-label{font-size:.5rem;font-weight:500;color:var(--muted);transition:color .18s,font-weight .18s;}
 .tab-item.active .tab-label{color:var(--accent);font-weight:700;}
 .tab-active-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);margin:0 auto;opacity:0;transition:opacity .2s,transform .2s;transform:scale(0);}
 .tab-item.active .tab-active-dot{opacity:1;transform:scale(1);}
@@ -405,6 +405,17 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
       <div id="cardsContent"></div>
     </div>
 
+    <!-- FATURAS -->
+    <div class="screen" id="screen-faturas">
+      <div class="page-hdr">
+        <div class="page-hdr-left"><div class="lbl">Controle de</div><div class="ttl">Faturas</div></div>
+        <div class="page-hdr-right">
+          <div class="year-sel"><button class="year-arr" onclick="changeYear(-1);renderFaturas()">‹</button><div class="year-lbl" id="faturasYearLbl">2026</div><button class="year-arr" onclick="changeYear(1);renderFaturas()">›</button></div>
+        </div>
+      </div>
+      <div id="faturasContent"></div>
+    </div>
+
     <!-- INVESTMENTS -->
     <div class="screen" id="screen-invest">
       <div class="page-hdr">
@@ -429,6 +440,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
       <button class="tab-item active" id="tab-home" onclick="switchTab('home')"><div class="tab-icon">🏠</div><div class="tab-label">Início</div><div class="tab-active-dot"></div></button>
       <button class="tab-item" id="tab-year" onclick="switchTab('year')"><div class="tab-icon">📊</div><div class="tab-label">Anual</div><div class="tab-active-dot"></div></button>
       <button class="tab-item" id="tab-cards" onclick="switchTab('cards')"><div class="tab-icon">💳</div><div class="tab-label">Cartões</div><div class="tab-active-dot"></div></button>
+      <button class="tab-item" id="tab-faturas" onclick="switchTab('faturas')"><div class="tab-icon">🧾</div><div class="tab-label">Faturas</div><div class="tab-active-dot"></div></button>
       <button class="tab-item" id="tab-invest" onclick="switchTab('invest')"><div class="tab-icon">📈</div><div class="tab-label">Investir</div><div class="tab-active-dot"></div></button>
       <button class="tab-item" id="tab-profile" onclick="switchTab('profile')"><div class="tab-icon">👤</div><div class="tab-label">Perfil</div><div class="tab-active-dot"></div></button>
     </div>
@@ -814,29 +826,50 @@ function totalsForYearMonth(year,mi){
 }
 function totalsForYear(year){let i=0,e=0;for(let m=0;m<12;m++){const t=totalsForYearMonth(year,m);i+=t.income;e+=t.expense;}return{income:i,expense:e,balance:i-e};}
 
-// CARD LIMIT — each paid invoice parcel frees limit
+// CARD LIMIT — corrected: parcel paid = invoice of that month marked pago_total or pago_minimo
 function cardBill(cardId,year,mi){
   return allForYearMonth(year,mi).filter(e=>e.type==='exp'&&e.cardId===cardId).reduce((s,e)=>s+e.value,0);
 }
 
 function cardLimitConsumed(cardId){
   let consumed=0;
-  // Installments: totalValue consumed upfront, each paid parcel frees parcelValue
+  const partial=DB.invoicePartial||{};
+
+  // Installments: consume totalValue up front; each paid month frees that parcel's value
   DB.installments.filter(i=>i.cardId===cardId).forEach(inst=>{
     const s=toAbs(inst.startYear,inst.startMonth);
     const e=s+inst.totalParcels-1;
-    let paidParcels=0;
+    let freed=0;
     for(let abs=s;abs<=Math.min(e,toAbs(CY,NOW.getMonth()));abs++){
       const y=Math.floor(abs/12),m=abs%12;
-      if(DB.invoiceStatuses[`${cardId}_${y}_${m}`]==='pago') paidParcels++;
+      const st=DB.invoiceStatuses[`${cardId}_${y}_${m}`]||'aberto';
+      if(st==='pago_total'||st==='pago'){
+        freed+=inst.parcelValue;
+      } else if(st==='pago_parcial'){
+        // partial: free proportional share of this parcel based on what was paid vs total bill that month
+        const bill=cardBill(cardId,y,m);
+        const paid=partial[`${cardId}_${y}_${m}`]||0;
+        const ratio=bill>0?Math.min(1,paid/bill):0;
+        freed+=inst.parcelValue*ratio;
+      }
     }
-    // Total consumed = totalValue minus every parcel already paid
-    const remaining=inst.totalValue-(paidParcels*inst.parcelValue);
-    consumed+=remaining; // can go negative if overpaid — that's correct
+    const remaining=Math.max(0,inst.totalValue-freed);
+    consumed+=remaining;
   });
-  // Regular entries — each freed when that month's invoice is paid
-  DB.entries.filter(e=>e.cardId===cardId&&e.type==='exp').forEach(e=>{
-    if(DB.invoiceStatuses[`${cardId}_${e.year}_${e.month}`]!=='pago') consumed+=e.value;
+
+  // Regular (non-installment) entries
+  DB.entries.filter(e=>e.cardId===cardId&&e.type==='exp'&&!e.isDebtRollover).forEach(e=>{
+    const st=DB.invoiceStatuses[`${cardId}_${e.year}_${e.month}`]||'aberto';
+    if(st==='pago_total'||st==='pago'){
+      // fully freed — add 0
+    } else if(st==='pago_parcial'){
+      const bill=cardBill(cardId,e.year,e.month);
+      const paid=partial[`${cardId}_${e.year}_${e.month}`]||0;
+      const ratio=bill>0?Math.min(1,paid/bill):0;
+      consumed+=e.value*(1-ratio);
+    } else {
+      consumed+=e.value;
+    }
   });
   return consumed;
 }
@@ -911,8 +944,8 @@ function renderHome(){
       const bill=cardBill(c.id,currentYear,currentMonth);
       const inv=getInvoiceStatus(c.id,currentYear,currentMonth);
       const cl=isInvoiceClosed(c,currentYear,currentMonth);
-      const sl=inv==='pago'?'Paga':cl?'Fechada':'Em aberto';
-      const sc=inv==='pago'?'pago':cl?'fechada':'aberto';
+      const sl=inv==='pago_total'||inv==='pago'?'Paga':inv==='pago_parcial'?'Parcial':inv==='pago_minimo'?'Mín. Pago':inv==='venceu'?'Vencida':cl?'Fechada':'Em aberto';
+      const sc=inv==='pago_total'||inv==='pago'?'pago':inv==='pago_parcial'?'aberto':inv==='pago_minimo'?'aberto':inv==='venceu'?'aberto':cl?'fechada':'aberto';
       const ccol=CARD_COLORS.find(x=>x.id===(c.color||'slate'));
       html+=`<div class="inv-row"><div class="inv-name"><div class="inv-dot" style="background:${ccol?ccol.hex:'#334155'}"></div>${c.name}</div><div class="inv-right"><div class="inv-amt">${fmt(bill)}</div><button class="inv-badge ${sc}" onclick="openInvoiceModal('${c.id}',${currentYear},${currentMonth})">${sl}</button></div></div>`;
     });
@@ -1052,7 +1085,7 @@ function renderCards(){
           <div class="cc-top"><div><div class="cc-name">${c.name}</div><div class="cc-network">${c.network}${c.closeDay?` · Fecha dia ${c.closeDay}`:''}</div></div><button class="cc-edit-btn" onclick="openEditCard('${c.id}')">✏️ Editar</button></div>
           <div class="cc-bill-row">
             <div class="cc-bill-item"><div class="cc-bill-lbl">Fatura ${MONTHS[currentMonth]}</div><div class="cc-bill-val">${fmt(bill)}</div></div>
-            <div class="cc-bill-item"><div class="cc-bill-lbl">Status</div><div style="margin-top:5px"><button style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:7px;padding:4px 9px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;" onclick="openInvoiceModal('${c.id}',${currentYear},${currentMonth})">${inv==='pago'?'✓ Paga':closed?'🔒 Fechada':'· Em aberto'}</button></div></div>
+            <div class="cc-bill-item"><div class="cc-bill-lbl">Status</div><div style="margin-top:5px"><button style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:7px;padding:4px 9px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;" onclick="openInvoiceModal('${c.id}',${currentYear},${currentMonth})">${inv==='pago_total'||inv==='pago'?'✅ Paga':inv==='pago_parcial'?'💛 Parcial':inv==='pago_minimo'?'💛 Mín.':inv==='venceu'?'🔴 Vencida':closed?'🔒 Fechada':'· Em aberto'}</button></div></div>
           </div>
           ${limit>0?`<div class="cc-limit-area"><div class="cc-limit-row"><div class="cc-limit-lbl">${isCardOver?'⚠️ Limite ultrapassado!':pct.toFixed(0)+'% utilizado'}</div><div class="cc-limit-pct">${fmt(consumed)} / ${fmt(limit)}</div></div><div class="cc-limit-track"><div class="cc-limit-fill ${pc}" style="width:${Math.min(100,pct)}%"></div></div></div>`:''}
           <div class="cc-bottom"><div class="cc-due">📅 Vence dia <strong>${c.dueDay||'—'}</strong></div>${limit>0?`<div class="cc-avail${isCardOver?' neg':''}">${isCardOver?'⚠️ −'+fmt(Math.abs(avail)):'Disponível: '+fmt(avail)}</div>`:''}</div>
@@ -1178,15 +1211,88 @@ function switchTab(tab){
   if(tab==='home')renderHome();
   else if(tab==='year')renderYear();
   else if(tab==='cards')renderCards();
+  else if(tab==='faturas')renderFaturas();
   else if(tab==='invest')renderInvest();
   else renderProfile();
-  // Attach scroll listener for sticky header blur effect
   setTimeout(()=>{
     scr.onscroll=()=>{
       const hdr=scr.querySelector('.page-hdr');
       if(hdr)hdr.classList.toggle('scrolled',scr.scrollTop>10);
     };
   },50);
+}
+
+// ════════════════════════════════════════
+//  RENDER FATURAS
+// ════════════════════════════════════════
+function renderFaturas(){
+  document.getElementById('faturasYearLbl').textContent=currentYear;
+  if(!DB.cards.length){
+    document.getElementById('faturasContent').innerHTML=`<div class="sec"><div class="gcard"><div class="empty"><div class="empty-icon">🧾</div><div class="empty-text">Adicione cartões para ver as faturas</div></div></div></div>`;
+    return;
+  }
+  const statusInfo={
+    pago_total:{label:'✅ Pago Total',color:'#2e7d32',bg:'#dcfce7'},
+    pago:{label:'✅ Pago',color:'#2e7d32',bg:'#dcfce7'},
+    pago_parcial:{label:'💛 Pago Parcial',color:'#92400e',bg:'#fef3c7'},
+    pago_minimo:{label:'💛 Mín. Pago',color:'#92400e',bg:'#fef3c7'},
+    venceu:{label:'🔴 Vencida',color:'#991b1b',bg:'#fee2e2'},
+    aberto:{label:'· Em Aberto',color:'#6b7280',bg:'#f3f4f6'},
+  };
+
+  // Summary row: total open, total paid, overdue
+  let totalAberto=0,totalPago=0,totalVenceu=0;
+  DB.cards.forEach(c=>{
+    for(let m=0;m<12;m++){
+      const bill=cardBill(c.id,currentYear,m);
+      if(!bill)continue;
+      const st=getInvoiceStatus(c.id,currentYear,m);
+      if(st==='pago_total'||st==='pago'||st==='pago_minimo') totalPago+=bill;
+      else if(st==='venceu') totalVenceu+=bill;
+      else totalAberto+=bill;
+    }
+  });
+
+  let html=`<div style="padding:0 18px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;">
+    <div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Em Aberto</div><div style="font-size:.82rem;font-weight:800;color:var(--orange)">${fmt(totalAberto)}</div></div>
+    <div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Pagas</div><div style="font-size:.82rem;font-weight:800;color:var(--green)">${fmt(totalPago)}</div></div>
+    <div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Vencidas</div><div style="font-size:.82rem;font-weight:800;color:var(--red)">${fmt(totalVenceu)}</div></div>
+  </div>`;
+
+  // Per month, per card
+  for(let m=11;m>=0;m--){
+    const monthCards=DB.cards.filter(c=>cardBill(c.id,currentYear,m)>0);
+    if(!monthCards.length) continue;
+    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">📅 ${MONTHS[m]} ${currentYear}</div></div><div class="gcard">`;
+    monthCards.forEach(c=>{
+      const bill=cardBill(c.id,currentYear,m);
+      const st=getInvoiceStatus(c.id,currentYear,m);
+      const si=statusInfo[st]||statusInfo.aberto;
+      const cc=CARD_COLORS.find(x=>x.id===(c.color||'slate'));
+      const cardDot=cc?cc.hex:'#334155';
+      const closed=isInvoiceClosed(c,currentYear,m);
+      const isCurrentOrPast=toAbs(currentYear,m)<=toAbs(CY,NOW.getMonth());
+      html+=`<div style="display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border);gap:12px;cursor:pointer;" onclick="openInvoiceModal('${c.id}',${currentYear},${m})">
+        <div style="width:8px;height:8px;border-radius:50%;background:${cardDot};flex-shrink:0;margin-top:2px;"></div>
+        <div style="flex:1">
+          <div style="font-size:.83rem;font-weight:600;color:var(--text)">${c.name}</div>
+          <div style="font-size:.67rem;color:var(--muted);margin-top:2px">${c.network||''}${c.dueDay?` · Vence dia ${c.dueDay}`:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:.88rem;font-weight:800;color:var(--text)">${fmt(bill)}</div>
+          <div style="margin-top:3px"><span style="background:${si.bg};color:${si.color};font-size:.58rem;font-weight:700;padding:2px 8px;border-radius:8px">${si.label}</span></div>
+        </div>
+        <div style="color:var(--muted2);font-size:.8rem">›</div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  if(html===`<div style="padding:0 18px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;"><div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Em Aberto</div><div style="font-size:.82rem;font-weight:800;color:var(--orange)">${fmt(totalAberto)}</div></div><div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Pagas</div><div style="font-size:.82rem;font-weight:800;color:var(--green)">${fmt(totalPago)}</div></div><div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Vencidas</div><div style="font-size:.82rem;font-weight:800;color:var(--red)">${fmt(totalVenceu)}</div></div></div>`){
+    html+=`<div class="empty" style="padding:32px"><div class="empty-icon">🧾</div><div class="empty-text">Nenhuma fatura em ${currentYear}</div></div>`;
+  }
+
+  document.getElementById('faturasContent').innerHTML=html;
 }
 function changeYear(d){const n=currentYear+d;if(n<2020||n>CY+2)return;currentYear=n;if(currentTab==='home')renderHome();}
 function goMonth(mi){currentMonth=mi;renderHome();}
@@ -1409,21 +1515,157 @@ function deleteCardConfirm(){if(!editingCardId)return;if(!confirm('Excluir este 
 // ════════════════════════════════════════
 function openInvoiceModal(cardId,year,month){
   const c=getCard(cardId);if(!c)return;
-  const bill=cardBill(cardId,year,month);const status=getInvoiceStatus(cardId,year,month);const closed=isInvoiceClosed(c,year,month);
+  const bill=cardBill(cardId,year,month);
+  const status=getInvoiceStatus(cardId,year,month);
+  const closed=isInvoiceClosed(c,year,month);
+  const key=`${cardId}_${year}_${month}`;
+  const partialPaid=(DB.invoicePartial||{})[key]||0;
+  const partialJuros=(DB.invoicePartial||{})[key+'_juros']||0;
+
   document.getElementById('invoiceModalTitle').textContent=`${c.name} · ${MONTHS[month]}`;
-  const opts=[{k:'pago',l:'✓ Fatura Paga — libera limite do cartão',c:'#2e7d32'},{k:'aberto',l:'· Em Aberto',c:'#f57c00'}];
-  document.getElementById('invoiceModalBody').innerHTML=`
-  <div style="text-align:center;margin-bottom:16px">
-    <div style="font-size:1.9rem;font-weight:800;color:var(--text);letter-spacing:-.5px">${fmt(bill)}</div>
-    <div style="font-size:.76rem;color:var(--muted);margin-top:4px">${closed?'🔒 Fatura fechada':'Fatura em aberto'} · ${MONTHS[month]} ${year}</div>
-    ${c.dueDay?`<div style="font-size:.73rem;color:var(--muted);margin-top:2px">Vencimento: dia ${c.dueDay}</div>`:''}
-  </div>
-  <div class="info-box">Ao marcar como <strong>Paga</strong>, o valor desta fatura é liberado proporcionalmente no limite do cartão.</div>
-  <div class="gcard">${opts.map(o=>`<div class="settings-row" onclick="applyInvoiceStatus('${cardId}',${year},${month},'${o.k}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:${o.c}"></div><div class="sr-label">${o.l}</div></div>${status===o.k?`<div style="color:var(--accent)">✓</div>`:''}</div>`).join('')}</div>`;
+
+  // Build the modal body dynamically so partial-payment section shows/hides on click
+  function renderBody(sel){
+    const opts=[
+      {k:'pago_total',l:'✅ Pago Total',desc:'Fatura quitada — limite liberado completamente',c:'#2e7d32'},
+      {k:'pago_parcial',l:'💛 Pago Parcialmente',desc:'Informe o valor pago — resto gera dívida no próximo mês',c:'#d97706'},
+      {k:'venceu',l:'🔴 Vencida / Não paga',desc:'Fatura vencida sem pagamento',c:'#c62828'},
+      {k:'aberto',l:'· Em Aberto',desc:'Ainda não chegou o vencimento',c:'#8892a4'},
+    ];
+    const showPartial=sel==='pago_parcial';
+    const restante=bill-partialPaid;
+    return `
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:1.9rem;font-weight:800;color:var(--text);letter-spacing:-.5px">${fmt(bill)}</div>
+      <div style="font-size:.76rem;color:var(--muted);margin-top:4px">${closed?'🔒 Fatura fechada':'Fatura em aberto'} · ${MONTHS[month]} ${year}</div>
+      ${c.dueDay?`<div style="font-size:.73rem;color:var(--muted);margin-top:2px">📅 Vence dia ${c.dueDay}</div>`:''}
+      ${partialPaid>0&&sel==='pago_parcial'?`<div style="margin-top:6px;font-size:.74rem;font-weight:700;color:#d97706">Pago: ${fmt(partialPaid)} · Restante: ${fmt(Math.max(0,restante))}</div>`:''}
+    </div>
+    <div class="gcard" style="margin-bottom:12px">${opts.map(o=>`
+      <div class="settings-row" onclick="invModalSelect('${cardId}',${year},${month},'${o.k}')" style="cursor:pointer;${sel===o.k?'background:rgba(0,137,123,.05)':''}">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:9px;height:9px;border-radius:50%;background:${o.c};flex-shrink:0"></div>
+          <div>
+            <div class="sr-label" style="${sel===o.k?'color:var(--accent)':''}">${o.l}</div>
+            <div style="font-size:.63rem;color:var(--muted)">${o.desc}</div>
+          </div>
+        </div>
+        ${sel===o.k?`<div style="color:var(--accent);font-size:1.1rem;font-weight:700">✓</div>`:`<div style="color:var(--muted2);font-size:.9rem">›</div>`}
+      </div>`).join('')}
+    </div>
+    ${showPartial?`
+    <div style="background:var(--accent-light);border:1px solid rgba(0,137,123,.2);border-radius:12px;padding:13px;margin-bottom:10px">
+      <div style="font-size:.7rem;font-weight:700;color:var(--accent2);margin-bottom:10px">💡 Informe o quanto você pagou desta fatura</div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label class="form-label">Valor pago (R$)</label>
+        <input class="form-input" id="invPartialVal" type="number" inputmode="decimal" step="0.01" placeholder="Ex: 150,00" value="${partialPaid||''}" oninput="invPartialPreview('${cardId}',${year},${month})">
+      </div>
+      <div class="form-group" style="margin-bottom:8px">
+        <label class="form-label">Juros / multa sobre o restante (% ao mês)</label>
+        <input class="form-input" id="invJurosVal" type="number" inputmode="decimal" step="0.01" placeholder="Ex: 2,99 (deixe 0 se não souber)" value="${partialJuros||''}">
+        <div style="font-size:.62rem;color:var(--muted);margin-top:3px">Cartão de crédito médio: 12–15% ao mês</div>
+      </div>
+      <div id="invPartialPreviewBox" style="font-size:.74rem;color:var(--accent2);font-weight:600;margin-bottom:10px;min-height:18px"></div>
+      <button class="btn-primary" style="margin-top:0" onclick="confirmPartialPayment('${cardId}',${year},${month})">💾 Confirmar Pagamento Parcial</button>
+    </div>`:''}
+    ${sel==='pago_total'?`<button class="btn-primary" onclick="confirmPagoTotal('${cardId}',${year},${month})">✅ Confirmar Pago Total</button>`:''}
+    ${sel==='venceu'?`<button class="btn-primary" style="background:var(--red);box-shadow:none" onclick="confirmVenceu('${cardId}',${year},${month})">🔴 Marcar como Vencida</button>`:''}
+    ${sel==='aberto'?`<button class="btn-primary" style="background:var(--muted);box-shadow:none" onclick="applyInvoiceStatus('${cardId}',${year},${month},'aberto')">Manter Em Aberto</button>`:''}
+    `;
+  }
+
+  document.getElementById('invoiceModalBody').innerHTML=renderBody(status);
+  // re-render preview if already has partial
+  if(status==='pago_parcial'&&partialPaid>0) invPartialPreview(cardId,year,month);
   document.getElementById('invoiceModal').classList.add('open');
+
+  // expose renderBody for re-renders
+  window._invRenderBody={cardId,year,month,renderBody};
 }
-function closeInvoiceModal(){document.getElementById('invoiceModal').classList.remove('open');}
-function applyInvoiceStatus(cid,y,m,s){setInvoiceStatus(cid,y,m,s);closeInvoiceModal();if(currentTab==='home')renderHome();else renderCards();}
+
+function invModalSelect(cardId,year,month,sel){
+  // Just re-render the body with new selection highlighted — don't save yet
+  const rb=window._invRenderBody;
+  if(!rb)return;
+  document.getElementById('invoiceModalBody').innerHTML=rb.renderBody(sel);
+  if(sel==='pago_parcial'){
+    const key=`${cardId}_${year}_${month}`;
+    const pp=(DB.invoicePartial||{})[key]||0;
+    if(pp>0) invPartialPreview(cardId,year,month);
+  }
+  window._invRenderBody={...rb,renderBody:rb.renderBody};
+  // update _invRenderBody's closure to reflect new sel for further re-renders
+  window._invRenderBody.currentSel=sel;
+}
+
+function invPartialPreview(cardId,year,month){
+  const bill=cardBill(cardId,year,month);
+  const paid=parseFloat(document.getElementById('invPartialVal')?.value)||0;
+  const juros=parseFloat(document.getElementById('invJurosVal')?.value)||0;
+  const restante=Math.max(0,bill-paid);
+  const divida=restante*(1+juros/100);
+  const box=document.getElementById('invPartialPreviewBox');
+  if(!box)return;
+  if(paid<=0){box.textContent='';return;}
+  if(paid>=bill){box.innerHTML=`<span style="color:var(--green)">✅ Valor igual ou maior que a fatura — use Pago Total!</span>`;return;}
+  box.innerHTML=`Pago: <strong>${fmt(paid)}</strong> · Restante: <strong style="color:var(--red)">${fmt(restante)}</strong>${juros>0?` + ${juros}% juros = <strong style="color:var(--red)">${fmt(divida)}</strong> no próximo mês`:'· sem juros definidos'}`;
+}
+
+function confirmPartialPayment(cardId,year,month){
+  const bill=cardBill(cardId,year,month);
+  const paid=parseFloat(document.getElementById('invPartialVal')?.value)||0;
+  const juros=parseFloat(document.getElementById('invJurosVal')?.value)||0;
+  if(!paid||paid<=0){alert('Informe o valor pago');return;}
+  if(paid>=bill){alert('Valor pago maior ou igual à fatura. Use "Pago Total".');return;}
+
+  const restante=bill-paid;
+  const divida=restante*(1+(juros/100));
+
+  // Save partial payment record
+  if(!DB.invoicePartial)DB.invoicePartial={};
+  const key=`${cardId}_${year}_${month}`;
+  DB.invoicePartial[key]=paid;
+  DB.invoicePartial[key+'_juros']=juros;
+
+  // Mark as pago_parcial
+  setInvoiceStatus(cardId,year,month,'pago_parcial');
+
+  // Create debt entry in next month
+  const nextAbs=toAbs(year,month)+1;
+  const nextYear=Math.floor(nextAbs/12);
+  const nextMonth=nextAbs%12;
+  const c=getCard(cardId);
+  DB.entries.push({
+    id:uid(),
+    month:nextMonth,
+    year:nextYear,
+    desc:`💳 Saldo fatura ${c?c.name:'Cartão'} (${MONTHS[month]})${juros>0?` +${juros}% juros`:''}`,
+    value:parseFloat(divida.toFixed(2)),
+    cat:'cartao',
+    type:'exp',
+    cardId:cardId,
+    isDebtRollover:true
+  });
+
+  save();
+  closeInvoiceModal();
+  alert(`✅ Pagamento de ${fmt(paid)} registrado!\n💳 Dívida de ${fmt(divida)} lançada em ${MONTHS[nextMonth]}/${nextYear}.`);
+  if(currentTab==='home')renderHome();else if(currentTab==='faturas')renderFaturas();else renderCards();
+}
+
+function confirmPagoTotal(cardId,year,month){
+  applyInvoiceStatus(cardId,year,month,'pago_total');
+  // Remove any partial record if exists
+  if(DB.invoicePartial){const key=`${cardId}_${year}_${month}`;delete DB.invoicePartial[key];delete DB.invoicePartial[key+'_juros'];}
+  save();
+}
+
+function confirmVenceu(cardId,year,month){
+  applyInvoiceStatus(cardId,year,month,'venceu');
+}
+
+function closeInvoiceModal(){document.getElementById('invoiceModal').classList.remove('open');window._invRenderBody=null;}
+function applyInvoiceStatus(cid,y,m,s){setInvoiceStatus(cid,y,m,s);closeInvoiceModal();if(currentTab==='home')renderHome();else if(currentTab==='faturas')renderFaturas();else renderCards();}
 
 // ════════════════════════════════════════
 //  INVESTMENTS MODAL
@@ -1616,6 +1858,30 @@ function clearAll(){if(!confirm('Apagar TODOS os dados?'))return;const p=DB.prof
 });
 
 checkWelcome();
+
+// ════════════════════════════════════════
+//  SWIPE BETWEEN TABS
+// ════════════════════════════════════════
+(function(){
+  const TAB_ORDER=['home','year','cards','faturas','invest','profile'];
+  let touchStartX=0,touchStartY=0,touchStartTime=0;
+  const screensEl=document.querySelector('.screens');
+  screensEl.addEventListener('touchstart',e=>{
+    touchStartX=e.touches[0].clientX;
+    touchStartY=e.touches[0].clientY;
+    touchStartTime=Date.now();
+  },{passive:true});
+  screensEl.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-touchStartX;
+    const dy=e.changedTouches[0].clientY-touchStartY;
+    const dt=Date.now()-touchStartTime;
+    // Only horizontal swipe: fast enough, wide enough, more horizontal than vertical
+    if(dt>400||Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5) return;
+    const idx=TAB_ORDER.indexOf(currentTab);
+    if(dx<0&&idx<TAB_ORDER.length-1) switchTab(TAB_ORDER[idx+1]); // swipe left → next
+    else if(dx>0&&idx>0) switchTab(TAB_ORDER[idx-1]); // swipe right → prev
+  },{passive:true});
+})();
 </script>
 </body>
 </html>
