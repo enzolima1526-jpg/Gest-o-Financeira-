@@ -74,13 +74,39 @@ html,body{
 .bhpill-val.g{color:var(--green);}
 .bhpill-val.r{color:var(--red);}
 
-/* MONTH */
-.month-scroll{display:flex;gap:6px;padding:0 18px 12px;overflow-x:auto;scrollbar-width:none;}
+/* MONTH SCROLL base (reutilizado em Cartões também) */
+.month-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 18px 12px;}
 .month-scroll::-webkit-scrollbar{display:none;}
-.mpill{flex-shrink:0;padding:5px 13px;border-radius:18px;background:var(--surface);border:1.5px solid var(--border);font-size:.72rem;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
-.mpill.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
-.mpill.has-data::after{content:'';display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin-left:4px;vertical-align:middle;}
-.mpill.active.has-data::after{background:rgba(255,255,255,.6);}
+
+/* MONTH SELECTOR BAR — proeminente, acima do saldo */
+.month-selector-bar{
+  background:var(--surface);
+  border-bottom:1.5px solid var(--border);
+  padding:0;
+  position:relative;
+}
+.month-selector-bar .month-scroll{
+  padding:10px 18px 10px;
+  gap:7px;
+}
+.mpill{flex-shrink:0;padding:6px 14px;border-radius:20px;background:var(--bg);border:1.5px solid var(--border);font-size:.76rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .18s;white-space:nowrap;}
+.mpill.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(0,137,123,.3);}
+.mpill.has-data::after{content:'';display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin-left:5px;vertical-align:middle;}
+.mpill.active.has-data::after{background:rgba(255,255,255,.7);}
+
+/* BALANCE HERO com badge de mês */
+.balance-hero{padding:14px 18px 14px;}
+.bh-month-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.75rem;font-weight:800;letter-spacing:.2px;
+  color:var(--accent2);
+  background:var(--accent-light);
+  border:1.5px solid rgba(0,137,123,.2);
+  border-radius:20px;padding:4px 12px;
+  margin-bottom:10px;
+}
+.bh-month-badge::before{content:'📅';font-size:.7rem;}
+
 
 /* SECTION */
 .sec{padding:0 18px;margin-bottom:11px;}
@@ -482,6 +508,7 @@ html,body{
 
     <!-- HOME -->
     <div class="screen active" id="screen-home">
+      <!-- Linha topo: saudação + olho + ano + + -->
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl" id="ghGreeting">Bom dia</div><div class="ttl" id="ghName">...</div></div>
         <div class="page-hdr-right">
@@ -490,8 +517,15 @@ html,body{
           <button class="fab" id="fabBtn" onclick="openAdd()">+</button>
         </div>
       </div>
+
+      <!-- Seletor de mês PROEMINENTE -->
+      <div class="month-selector-bar">
+        <div class="month-scroll" id="homeMonthScroll"></div>
+      </div>
+
+      <!-- Saldo com mês destacado -->
       <div class="balance-hero">
-        <div class="bh-label">Saldo do Mês</div>
+        <div class="bh-month-badge" id="ghMonthBadge">Janeiro · 2026</div>
         <div class="bh-amount" id="ghBalance">R$ 0,00</div>
         <div class="bh-pills">
           <div class="bhpill"><div class="bhpill-lbl">↑ Receitas</div><div class="bhpill-val g" id="ghIncome">R$ 0,00</div></div>
@@ -501,7 +535,7 @@ html,body{
           <div class="bhpill bhpill-invest"><div class="bhpill-lbl">📈 Total Investido</div><div class="bhpill-val" id="ghInvest">R$ 0,00</div></div>
         </div>
       </div>
-      <div class="month-scroll" id="homeMonthScroll"></div>
+
       <div id="homeContent"></div>
     </div>
 
@@ -581,8 +615,26 @@ html,body{
 <div class="modal-overlay" id="addModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-header"><div class="modal-title">Novo Lançamento</div><button class="modal-close" onclick="closeAdd()">✕</button></div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Novo Lançamento</div>
+        <div style="font-size:.68rem;color:var(--accent2);font-weight:700;margin-top:2px;" id="addModalMonthLabel">📅 Janeiro · 2026</div>
+      </div>
+      <button class="modal-close" onclick="closeAdd()">✕</button>
+    </div>
     <div class="modal-body">
+      <!-- Seletor de mês/ano do lançamento -->
+      <div style="background:var(--accent-light);border:1.5px solid rgba(0,137,123,.25);border-radius:12px;padding:10px 13px;margin-bottom:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="font-size:.62rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.5px;">Mês do lançamento</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <select class="form-select" id="fEntryMonth" style="margin:0;padding:5px 8px;font-size:.75rem;min-width:0;flex:1;" onchange="updateAddModalLabel()">
+            ${typeof MONTHS!=='undefined'?MONTHS.map((m,i)=>`<option value="${i}">${m}</option>`).join(''):''}
+          </select>
+          <select class="form-select" id="fEntryYear" style="margin:0;padding:5px 8px;font-size:.75rem;width:72px;" onchange="updateAddModalLabel()">
+          </select>
+        </div>
+      </div>
+
       <div class="type-tabs">
         <button class="type-tab active" id="tt-exp" onclick="setAddType('exp')">💸 Gasto</button>
         <button class="type-tab" id="tt-inc" onclick="setAddType('inc')">💰 Receita</button>
@@ -1135,6 +1187,9 @@ function renderHome(){
   ba.className='bh-amount'+(t.balance<0?' neg':'');
   document.getElementById('ghIncome').textContent=fmt(t.income);
   document.getElementById('ghExpense').textContent=fmt(t.expense);
+  // Badge mês/ano
+  const badge=document.getElementById('ghMonthBadge');
+  if(badge) badge.textContent=`${MONTHS[currentMonth]} · ${currentYear}`;
   // Invest total
   const invs=DB.investments||[];
   let totalInvested=0;invs.forEach(i=>{const c=calcInvestment(i);totalInvested+=c.invested;});
@@ -1143,8 +1198,20 @@ function renderHome(){
   const av=document.getElementById('ghAvatar');
   av.innerHTML=p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.name?p.name.charAt(0).toUpperCase():'?');
 
-  let ms='';MONTHS.forEach((m,i)=>{const hd=allForYearMonth(currentYear,i).length>0;ms+=`<button class="mpill${currentMonth===i?' active':''}${hd?' has-data':''}" onclick="goMonth(${i})">${m}</button>`;});
-  document.getElementById('homeMonthScroll').innerHTML=ms;
+  // Month scroll — renderiza e rola até o mês ativo
+  let ms='';MONTHS.forEach((m,i)=>{const hd=allForYearMonth(currentYear,i).length>0;ms+=`<button class="mpill${currentMonth===i?' active':''}${hd?' has-data':''}" id="mpill-${i}" onclick="goMonth(${i})">${m}</button>`;});
+  const msEl=document.getElementById('homeMonthScroll');
+  msEl.innerHTML=ms;
+  // Auto-scroll para deixar o mês ativo centralizado
+  requestAnimationFrame(()=>{
+    const activePill=document.getElementById(`mpill-${currentMonth}`);
+    if(activePill&&msEl){
+      const pillLeft=activePill.offsetLeft;
+      const pillW=activePill.offsetWidth;
+      const containerW=msEl.offsetWidth;
+      msEl.scrollLeft=pillLeft-(containerW/2)+(pillW/2);
+    }
+  });
 
   const entries=allForYearMonth(currentYear,currentMonth);
   const exps=entries.filter(e=>e.type==='exp');
@@ -1751,10 +1818,22 @@ function updateInstPreview(){
 function openAdd(){
   selectedCat='outros';selectedExtraCat='freelance';currentIncType='extra';
   document.getElementById('fCard').innerHTML='<option value="">Sem cartão</option>'+DB.cards.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  // Mês/ano do lançamento — pré-seleciona o mês atual
+  const emSel=document.getElementById('fEntryMonth');
+  const eySel=document.getElementById('fEntryYear');
+  if(emSel) emSel.innerHTML=MONTHS.map((m,i)=>`<option value="${i}"${i===currentMonth?' selected':''}>${m}</option>`).join('');
+  if(eySel) eySel.innerHTML=YEARS.map(y=>`<option value="${y}"${y===currentYear?' selected':''}>${y}</option>`).join('');
+  updateAddModalLabel();
   document.getElementById('fStartMonth').innerHTML=MONTHS.map((m,i)=>`<option value="${i}"${i===currentMonth?' selected':''}>${m}</option>`).join('');
   document.getElementById('fStartYear').innerHTML=YEARS.map(y=>`<option value="${y}"${y===currentYear?' selected':''}>${y}</option>`).join('');
   document.getElementById('catGrid').innerHTML=buildCatGrid(selectedCat);
   document.getElementById('addModal').classList.add('open');
+}
+function updateAddModalLabel(){
+  const m=parseInt(document.getElementById('fEntryMonth')?.value??currentMonth);
+  const y=parseInt(document.getElementById('fEntryYear')?.value??currentYear);
+  const lbl=document.getElementById('addModalMonthLabel');
+  if(lbl) lbl.textContent=`📅 ${MONTHS[m]} · ${y}`;
 }
 function closeAdd(){document.getElementById('addModal').classList.remove('open');resetForm();}
 function resetForm(){
@@ -1820,6 +1899,9 @@ function addEntry(){
   const desc=document.getElementById('fDesc').value.trim();
   const cat=selectedCat||'outros';
   const cardId=document.getElementById('fCard').value||null;
+  // Mês/ano do lançamento — usa os selects do modal
+  const entryMonth=parseInt(document.getElementById('fEntryMonth')?.value??currentMonth);
+  const entryYear=parseInt(document.getElementById('fEntryYear')?.value??currentYear);
   if(!desc){alert('Preencha a descrição!');return;}
   if(addType==='inst'){
     const totalVal=parseFloat(document.getElementById('fInstTotal').value);
@@ -1833,19 +1915,23 @@ function addEntry(){
     const val=parseFloat(document.getElementById('fVal').value);
     if(isNaN(val)||val<=0){alert('Informe o valor!');return;}
     if(currentIncType==='salary'){
-      // Save as recurring income (salary)
+      // Save as recurring income (salary) — começa no mês selecionado
       const day=parseInt(document.getElementById('fSalaryDay').value)||null;
       if(!DB.recurringIncome)DB.recurringIncome=[];
-      DB.recurringIncome.push({id:uid(),desc,value:val,day,cat:'salario',startMonth:currentMonth,startYear:currentYear,overrides:{}});
+      DB.recurringIncome.push({id:uid(),desc,value:val,day,cat:'salario',startMonth:entryMonth,startYear:entryYear,overrides:{}});
     } else {
-      // Extra income — one-time entry
+      // Extra income — one-time entry no mês selecionado
       const eCat=selectedExtraCat==='outros_inc'?'outros':selectedExtraCat;
-      DB.entries.push({id:uid(),month:currentMonth,year:currentYear,desc,value:val,cat:eCat,type:'inc',cardId:null});
+      DB.entries.push({id:uid(),month:entryMonth,year:entryYear,desc,value:val,cat:eCat,type:'inc',cardId:null});
     }
   } else {
     const val=parseFloat(document.getElementById('fVal').value);
     if(isNaN(val)||val<=0){alert('Informe o valor!');return;}
-    DB.entries.push({id:uid(),month:currentMonth,year:currentYear,desc,value:val,cat,type:addType,cardId});
+    DB.entries.push({id:uid(),month:entryMonth,year:entryYear,desc,value:val,cat,type:addType,cardId});
+  }
+  // Se o mês do lançamento é diferente do atual, navega para ele para o usuário ver
+  if(entryMonth!==currentMonth||entryYear!==currentYear){
+    currentMonth=entryMonth;currentYear=entryYear;
   }
   save();closeAdd();if(currentTab==='home')renderHome();else renderCards();
 }
