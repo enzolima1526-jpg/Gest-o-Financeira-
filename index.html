@@ -23,9 +23,7 @@
 }
 html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
 .app{height:100vh;display:flex;flex-direction:column;padding-top:var(--safe-top);}
-.screens{flex:1;overflow:hidden;position:relative;}
-.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(var(--tab-h)+var(--safe-bottom)+20px);opacity:0;pointer-events:none;transition:opacity .22s ease;}
-.screen::-webkit-scrollbar{display:none;}/* WELCOME */
+/* WELCOME */
 .welcome{position:fixed;inset:0;z-index:1000;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;transition:opacity .4s,transform .4s;}
 .welcome.hide{opacity:0;transform:scale(1.04);pointer-events:none;}
 .welcome-logo{width:68px;height:68px;border-radius:20px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,137,123,.3);}
@@ -260,8 +258,19 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
 .profile-sec-title{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding:0 18px;margin-bottom:7px;}
 
 /* LIQUID GLASS TABS */
-.bottom-tabs{position:fixed;bottom:0;left:0;right:0;height:var(--tab-h);display:flex;align-items:center;padding-bottom:var(--safe-bottom);z-index:200;padding-left:12px;padding-right:12px;}
-.tabs-glass{width:100%;background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(32px) saturate(200%);backdrop-filter:blur(32px) saturate(200%);border-radius:24px;border:1px solid rgba(255,255,255,.95);box-shadow:0 2px 24px rgba(0,0,0,.10),0 1px 0 rgba(255,255,255,.9) inset;display:flex;align-items:center;padding:6px 4px;transition:box-shadow .2s;}
+.bottom-tabs{position:fixed;bottom:0;left:0;right:0;height:var(--tab-h);display:flex;align-items:center;padding-bottom:var(--safe-bottom);z-index:200;padding-left:12px;padding-right:12px;pointer-events:none;}
+.tabs-glass{
+  width:100%;
+  background:rgba(242,244,248,.55);
+  -webkit-backdrop-filter:saturate(180%) blur(40px);
+  backdrop-filter:saturate(180%) blur(40px);
+  border-radius:24px;
+  border:1.5px solid rgba(255,255,255,.85);
+  box-shadow:0 8px 32px rgba(0,0,0,.13),0 1.5px 0 rgba(255,255,255,.95) inset,0 -1px 0 rgba(0,0,0,.04) inset;
+  display:flex;align-items:center;padding:6px 4px;
+  pointer-events:all;
+  isolation:isolate;
+}
 .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:5px 4px;border:none;background:none;border-radius:16px;transition:all .2s cubic-bezier(.34,1.56,.64,1);position:relative;}
 .tab-item:active{opacity:.7;transform:scale(.9);}
 .tab-item.active{background:rgba(0,137,123,.11);}
@@ -276,12 +285,24 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
 .page-hdr{padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;background:rgba(242,244,248,.85);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(228,232,240,0);transition:border-color .2s,box-shadow .2s;}
 .page-hdr.scrolled{border-bottom-color:rgba(228,232,240,.7);box-shadow:0 2px 12px rgba(0,0,0,.06);}
 
-/* SCREEN TRANSITIONS — estilo WhatsApp */
-.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:calc(var(--tab-h)+var(--safe-bottom)+20px);opacity:0;pointer-events:none;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1),opacity .32s cubic-bezier(.4,0,.2,1);}
+/* SCREEN TRANSITIONS — estilo WhatsApp (sem bug) */
+.screens{flex:1;overflow:hidden;position:relative;}
+.screen{
+  position:absolute;inset:0;
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  padding-bottom:calc(var(--tab-h)+var(--safe-bottom)+20px);
+  pointer-events:none;
+  will-change:transform,opacity;
+}
 .screen::-webkit-scrollbar{display:none;}
-.screen.active{opacity:1;pointer-events:all;transform:translateX(0);}
-.screen.slide-left{transform:translateX(-100%);opacity:0;}
-.screen.slide-right{transform:translateX(100%);opacity:0;}
+/* Estado padrão: escondido à direita */
+.screen[data-state="idle-right"]{transform:translateX(100%);opacity:0;transition:none;}
+.screen[data-state="idle-left"]{transform:translateX(-100%);opacity:0;transition:none;}
+.screen[data-state="entering"]{transform:translateX(0);opacity:1;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .25s ease;pointer-events:all;}
+.screen[data-state="active"]{transform:translateX(0);opacity:1;transition:none;pointer-events:all;}
+.screen[data-state="leaving-left"]{transform:translateX(-100%);opacity:0;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .25s ease;}
+.screen[data-state="leaving-right"]{transform:translateX(100%);opacity:0;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .25s ease;}
 
 /* FAB — agora inline no header */
 .fab{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.3rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,137,123,.4);transition:opacity .15s,transform .15s;flex-shrink:0;}
@@ -354,7 +375,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
   <div class="screens">
 
     <!-- HOME -->
-    <div class="screen active" id="screen-home">
+    <div class="screen active" data-state="active" id="screen-home">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl" id="ghGreeting">Bom dia</div><div class="ttl" id="ghName">...</div></div>
         <div class="page-hdr-right">
@@ -375,7 +396,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- YEAR -->
-    <div class="screen" id="screen-year">
+    <div class="screen" data-state="idle-right" id="screen-year">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl">Resumo</div><div class="ttl">Anual</div></div>
         <div class="year-sel"><button class="year-arr" onclick="changeYear(-1);renderYear()">‹</button><div class="year-lbl" id="yearLbl">2026</div><button class="year-arr" onclick="changeYear(1);renderYear()">›</button></div>
@@ -392,7 +413,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- CARDS -->
-    <div class="screen" id="screen-cards">
+    <div class="screen" data-state="idle-right" id="screen-cards">
       <input type="file" id="pdfInput" accept="application/pdf" style="display:none" onchange="handlePdfImport(event)">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl">Gestão de</div><div class="ttl">Cartões</div></div>
@@ -407,7 +428,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- FATURAS -->
-    <div class="screen" id="screen-faturas">
+    <div class="screen" data-state="idle-right" id="screen-faturas">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl">Controle de</div><div class="ttl">Faturas</div></div>
         <div class="page-hdr-right">
@@ -418,7 +439,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- INVESTMENTS -->
-    <div class="screen" id="screen-invest">
+    <div class="screen" data-state="idle-right" id="screen-invest">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl">Minha</div><div class="ttl">Carteira</div></div>
         <button class="hbtn-round" onclick="openAddInvest()">+ Investimento</button>
@@ -427,7 +448,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- PROFILE -->
-    <div class="screen" id="screen-profile">
+    <div class="screen" data-state="idle-right" id="screen-profile">
       <div class="page-hdr"><div class="page-hdr-left"><div class="lbl">Meu</div><div class="ttl">Perfil</div></div></div>
       <div id="profileContent"></div>
     </div>
@@ -1201,54 +1222,48 @@ function renderProfile(){
 //  NAV
 // ════════════════════════════════════════
 const TAB_ORDER=['home','year','cards','faturas','invest','profile'];
+let _switching=false;
 function switchTab(tab){
+  if(tab===currentTab)return;
   const prevTab=currentTab;
   const prevIdx=TAB_ORDER.indexOf(prevTab);
   const nextIdx=TAB_ORDER.indexOf(tab);
   const goRight=nextIdx>prevIdx;
   currentTab=tab;
+  // Update tab bar
   document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
   document.getElementById(`tab-${tab}`).classList.add('active');
   const prevScr=document.getElementById(`screen-${prevTab}`);
   const nextScr=document.getElementById(`screen-${tab}`);
-  // Posiciona a nova tela fora da viewport antes de animar
-  nextScr.style.transition='none';
-  nextScr.style.transform=goRight?'translateX(100%)':'translateX(-100%)';
-  nextScr.style.opacity='0';
-  nextScr.classList.remove('active','slide-left','slide-right');
-  // Render content antes de animar
+  // Render content
   if(tab==='home')renderHome();
   else if(tab==='year')renderYear();
   else if(tab==='cards')renderCards();
   else if(tab==='faturas')renderFaturas();
   else if(tab==='invest')renderInvest();
   else renderProfile();
-  // Força reflow e inicia animação
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      nextScr.style.transition='';
-      nextScr.style.transform='';
-      nextScr.style.opacity='';
-      nextScr.classList.add('active');
-      if(prevScr&&prevScr!==nextScr){
-        prevScr.style.transition='transform .32s cubic-bezier(.4,0,.2,1),opacity .32s cubic-bezier(.4,0,.2,1)';
-        prevScr.style.transform=goRight?'translateX(-100%)':'translateX(100%)';
-        prevScr.style.opacity='0';
-        setTimeout(()=>{
-          prevScr.classList.remove('active');
-          prevScr.style.transform='';
-          prevScr.style.opacity='';
-          prevScr.style.transition='';
-        },340);
-      }
-    });
-  });
+  // Position next screen off-screen instantly (no transition)
+  nextScr.setAttribute('data-state', goRight?'idle-right':'idle-left');
+  // Force reflow so position is applied before we start animating
+  void nextScr.offsetWidth;
+  // Now animate both screens
+  nextScr.setAttribute('data-state','entering');
+  prevScr.setAttribute('data-state', goRight?'leaving-left':'leaving-right');
+  // After animation, set final states
   setTimeout(()=>{
-    nextScr.onscroll=()=>{
-      const hdr=nextScr.querySelector('.page-hdr');
-      if(hdr)hdr.classList.toggle('scrolled',nextScr.scrollTop>10);
-    };
-  },50);
+    nextScr.setAttribute('data-state','active');
+    // Reset all other screens to their natural idle positions
+    TAB_ORDER.forEach((t,i)=>{
+      if(t===tab)return;
+      const s=document.getElementById(`screen-${t}`);
+      s.setAttribute('data-state',i<nextIdx?'idle-left':'idle-right');
+    });
+  },320);
+  // Scroll listener
+  nextScr.onscroll=()=>{
+    const hdr=nextScr.querySelector('.page-hdr');
+    if(hdr)hdr.classList.toggle('scrolled',nextScr.scrollTop>10);
+  };
 }
 
 // ════════════════════════════════════════
