@@ -285,24 +285,18 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
 .page-hdr{padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;background:rgba(242,244,248,.85);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(228,232,240,0);transition:border-color .2s,box-shadow .2s;}
 .page-hdr.scrolled{border-bottom-color:rgba(228,232,240,.7);box-shadow:0 2px 12px rgba(0,0,0,.06);}
 
-/* SCREEN TRANSITIONS — estilo WhatsApp (sem bug) */
+/* SCREENS — simples e sem bug */
 .screens{flex:1;overflow:hidden;position:relative;}
 .screen{
+  display:none;
   position:absolute;inset:0;
   overflow-y:auto;overflow-x:hidden;
   -webkit-overflow-scrolling:touch;scrollbar-width:none;
   padding-bottom:calc(var(--tab-h)+var(--safe-bottom)+20px);
-  pointer-events:none;
-  will-change:transform,opacity;
 }
 .screen::-webkit-scrollbar{display:none;}
-/* Estado padrão: escondido à direita */
-.screen[data-state="idle-right"]{transform:translateX(100%);opacity:0;transition:none;}
-.screen[data-state="idle-left"]{transform:translateX(-100%);opacity:0;transition:none;}
-.screen[data-state="entering"]{transform:translateX(0);opacity:1;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .25s ease;pointer-events:all;}
-.screen[data-state="active"]{transform:translateX(0);opacity:1;transition:none;pointer-events:all;}
-.screen[data-state="leaving-left"]{transform:translateX(-100%);opacity:0;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .25s ease;}
-.screen[data-state="leaving-right"]{transform:translateX(100%);opacity:0;transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .25s ease;}
+.screen.active{display:block;animation:scrFadeIn .22s ease forwards;}
+@keyframes scrFadeIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
 
 /* FAB — agora inline no header */
 .fab{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.3rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,137,123,.4);transition:opacity .15s,transform .15s;flex-shrink:0;}
@@ -375,7 +369,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
   <div class="screens">
 
     <!-- HOME -->
-    <div class="screen active" data-state="active" id="screen-home">
+    <div class="screen active" id="screen-home">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl" id="ghGreeting">Bom dia</div><div class="ttl" id="ghName">...</div></div>
         <div class="page-hdr-right">
@@ -396,7 +390,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- YEAR -->
-    <div class="screen" data-state="idle-right" id="screen-year">
+    <div class="screen" id="screen-year">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl">Resumo</div><div class="ttl">Anual</div></div>
         <div class="year-sel"><button class="year-arr" onclick="changeYear(-1);renderYear()">‹</button><div class="year-lbl" id="yearLbl">2026</div><button class="year-arr" onclick="changeYear(1);renderYear()">›</button></div>
@@ -413,7 +407,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- CARDS -->
-    <div class="screen" data-state="idle-right" id="screen-cards">
+    <div class="screen" id="screen-cards">
       <input type="file" id="pdfInput" accept="application/pdf" style="display:none" onchange="handlePdfImport(event)">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl">Gestão de</div><div class="ttl">Cartões</div></div>
@@ -428,7 +422,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- FATURAS -->
-    <div class="screen" data-state="idle-right" id="screen-faturas">
+    <div class="screen" id="screen-faturas">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl">Controle de</div><div class="ttl">Faturas</div></div>
         <div class="page-hdr-right">
@@ -439,7 +433,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- INVESTMENTS -->
-    <div class="screen" data-state="idle-right" id="screen-invest">
+    <div class="screen" id="screen-invest">
       <div class="page-hdr">
         <div class="page-hdr-left"><div class="lbl">Minha</div><div class="ttl">Carteira</div></div>
         <button class="hbtn-round" onclick="openAddInvest()">+ Investimento</button>
@@ -448,7 +442,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',-apple-system,sans-ser
     </div>
 
     <!-- PROFILE -->
-    <div class="screen" data-state="idle-right" id="screen-profile">
+    <div class="screen" id="screen-profile">
       <div class="page-hdr"><div class="page-hdr-left"><div class="lbl">Meu</div><div class="ttl">Perfil</div></div></div>
       <div id="profileContent"></div>
     </div>
@@ -1222,47 +1216,26 @@ function renderProfile(){
 //  NAV
 // ════════════════════════════════════════
 const TAB_ORDER=['home','year','cards','faturas','invest','profile'];
-let _switching=false;
 function switchTab(tab){
-  if(tab===currentTab)return;
-  const prevTab=currentTab;
-  const prevIdx=TAB_ORDER.indexOf(prevTab);
-  const nextIdx=TAB_ORDER.indexOf(tab);
-  const goRight=nextIdx>prevIdx;
-  currentTab=tab;
-  // Update tab bar
+  // Desativa tudo
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
-  const prevScr=document.getElementById(`screen-${prevTab}`);
-  const nextScr=document.getElementById(`screen-${tab}`);
-  // Render content
+  // Ativa o alvo
+  currentTab=tab;
+  const scr=document.getElementById('screen-'+tab);
+  scr.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  // Render
   if(tab==='home')renderHome();
   else if(tab==='year')renderYear();
   else if(tab==='cards')renderCards();
   else if(tab==='faturas')renderFaturas();
   else if(tab==='invest')renderInvest();
   else renderProfile();
-  // Position next screen off-screen instantly (no transition)
-  nextScr.setAttribute('data-state', goRight?'idle-right':'idle-left');
-  // Force reflow so position is applied before we start animating
-  void nextScr.offsetWidth;
-  // Now animate both screens
-  nextScr.setAttribute('data-state','entering');
-  prevScr.setAttribute('data-state', goRight?'leaving-left':'leaving-right');
-  // After animation, set final states
-  setTimeout(()=>{
-    nextScr.setAttribute('data-state','active');
-    // Reset all other screens to their natural idle positions
-    TAB_ORDER.forEach((t,i)=>{
-      if(t===tab)return;
-      const s=document.getElementById(`screen-${t}`);
-      s.setAttribute('data-state',i<nextIdx?'idle-left':'idle-right');
-    });
-  },320);
-  // Scroll listener
-  nextScr.onscroll=()=>{
-    const hdr=nextScr.querySelector('.page-hdr');
-    if(hdr)hdr.classList.toggle('scrolled',nextScr.scrollTop>10);
+  // Scroll header
+  scr.onscroll=()=>{
+    const hdr=scr.querySelector('.page-hdr');
+    if(hdr)hdr.classList.toggle('scrolled',scr.scrollTop>10);
   };
 }
 
@@ -1907,21 +1880,17 @@ checkWelcome();
 //  SWIPE BETWEEN TABS
 // ════════════════════════════════════════
 (function(){
-  let touchStartX=0,touchStartY=0,touchStartTime=0;
-  const screensEl=document.querySelector('.screens');
-  screensEl.addEventListener('touchstart',e=>{
-    touchStartX=e.touches[0].clientX;
-    touchStartY=e.touches[0].clientY;
-    touchStartTime=Date.now();
-  },{passive:true});
-  screensEl.addEventListener('touchend',e=>{
-    const dx=e.changedTouches[0].clientX-touchStartX;
-    const dy=e.changedTouches[0].clientY-touchStartY;
-    const dt=Date.now()-touchStartTime;
-    if(dt>400||Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5) return;
+  let sx=0,sy=0,st=0;
+  const el=document.querySelector('.screens');
+  el.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now();},{passive:true});
+  el.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx;
+    const dy=e.changedTouches[0].clientY-sy;
+    const dt=Date.now()-st;
+    if(dt>400||Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5)return;
     const idx=TAB_ORDER.indexOf(currentTab);
-    if(dx<0&&idx<TAB_ORDER.length-1) switchTab(TAB_ORDER[idx+1]);
-    else if(dx>0&&idx>0) switchTab(TAB_ORDER[idx-1]);
+    if(dx<0&&idx<TAB_ORDER.length-1)switchTab(TAB_ORDER[idx+1]);
+    else if(dx>0&&idx>0)switchTab(TAB_ORDER[idx-1]);
   },{passive:true});
 })();
 </script>
