@@ -315,7 +315,7 @@ html,body{
 .fab:active{opacity:.85;transform:scale(.92);}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(15,22,41,.4);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,22,41,.4);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s,bottom .15s,height .15s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal-sheet{
   background:rgba(247,248,252,.97);
@@ -1922,27 +1922,58 @@ checkWelcome();
 
 // ════════════════════════════════════════
 //  SAFARI PWA — TECLADO VIRTUAL
-//  Quando o teclado abre, sobe o modal para
-//  o input focado ficar visível
+//  Quando o teclado abre, sobe o overlay
+//  para o input focado ficar visível
 // ════════════════════════════════════════
 (function(){
   if(!window.visualViewport)return;
-  const app=document.getElementById('appShell');
+
   function onViewportChange(){
     const vv=window.visualViewport;
-    const offsetBottom=window.innerHeight-(vv.offsetTop+vv.height);
-    // Empurra os modais para cima do teclado
-    document.querySelectorAll('.modal-overlay.open .modal-sheet').forEach(sheet=>{
-      sheet.style.marginBottom=offsetBottom>10?offsetBottom+'px':'';
+    // Altura do teclado = diferença entre altura total e altura visível
+    const kbHeight=window.innerHeight-(vv.offsetTop+vv.height);
+    document.querySelectorAll('.modal-overlay.open').forEach(overlay=>{
+      if(kbHeight>10){
+        // Move o overlay inteiro para cima, liberando espaço do teclado
+        overlay.style.bottom=kbHeight+'px';
+        overlay.style.top='0';
+        overlay.style.height=(window.innerHeight-kbHeight)+'px';
+        // Garante que o input focado fica visível dentro do modal
+        const sheet=overlay.querySelector('.modal-sheet');
+        if(sheet){
+          sheet.style.maxHeight='100%';
+          // Scrolla o sheet para que o input focado apareça
+          const focused=sheet.querySelector('input:focus,select:focus,textarea:focus');
+          if(focused){
+            setTimeout(()=>{
+              focused.scrollIntoView({block:'center',behavior:'smooth'});
+            },100);
+          }
+        }
+      } else {
+        overlay.style.bottom='';
+        overlay.style.top='';
+        overlay.style.height='';
+        const sheet=overlay.querySelector('.modal-sheet');
+        if(sheet) sheet.style.maxHeight='';
+      }
     });
   }
-  window.visualViewport.addEventListener('resize',onViewportChange);
-  window.visualViewport.addEventListener('scroll',onViewportChange);
-  // Quando fecha o teclado, reseta
+
+  window.visualViewport.addEventListener('resize',onViewportChange,{passive:true});
+  window.visualViewport.addEventListener('scroll',onViewportChange,{passive:true});
+
+  // Quando o teclado fecha, reseta tudo
   document.addEventListener('focusout',()=>{
     setTimeout(()=>{
-      document.querySelectorAll('.modal-sheet').forEach(s=>s.style.marginBottom='');
-    },100);
+      document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+        overlay.style.bottom='';
+        overlay.style.top='';
+        overlay.style.height='';
+        const sheet=overlay.querySelector('.modal-sheet');
+        if(sheet) sheet.style.maxHeight='';
+      });
+    },150);
   });
 })();
 </script>
