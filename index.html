@@ -6,30 +6,35 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Finanças">
-<meta name="theme-color" content="#f7f8fc">
+<meta name="theme-color" content="#eef0f5">
 <title>Finanças</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#f2f4f8;--surface:#fff;--border:#e4e8f0;--border2:#d0d6e8;
+  --bg:#eef0f5;--surface:#f7f8fc;--border:#dde1ec;--border2:#c8cfe0;
   --accent:#00897b;--accent-light:#e0f2f1;--accent2:#00695c;
   --green:#00a86b;--red:#e53935;--orange:#f57c00;
-  --text:#0f1629;--text2:#374151;--muted:#8892a4;--muted2:#c5cbda;
+  --text:#0f1629;--text2:#374151;--muted:#7a8599;--muted2:#bdc5d8;
   --tab-h:80px;
   --safe-top:env(safe-area-inset-top,44px);
   --safe-bottom:env(safe-area-inset-bottom,34px);
+  --card-shadow:0 2px 12px rgba(0,0,0,.07);
 }
 html,body{
   height:100%;overflow:hidden;
   font-family:'Inter',-apple-system,sans-serif;
   background:var(--bg);color:var(--text);
   -webkit-font-smoothing:antialiased;
-  /* Impede bounce/overscroll no Safari */
   overscroll-behavior:none;
   -webkit-overflow-scrolling:auto;
   touch-action:pan-x pan-y;
+}
+/* Surface cards get a slightly lighter feel */
+.gcard,.bhpill,.overview-card,.chart-card,.goal-card,.invest-summary,.profile-card,.cc-entries,.year-cell{
+  background:var(--surface);
+  box-shadow:var(--card-shadow);
 }
 /* Remove tap highlight azul do Safari */
 *{-webkit-tap-highlight-color:transparent;}
@@ -62,17 +67,48 @@ html,body{
 .hdr-avatar img{width:100%;height:100%;object-fit:cover;}
 .hbtn-round{height:34px;min-width:34px;border-radius:17px;background:var(--accent-light);border:1.5px solid var(--accent);color:var(--accent);font-size:.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 10px;gap:4px;white-space:nowrap;}
 
-/* BALANCE */
-.balance-hero{padding:2px 18px 16px;}
-.bh-label{font-size:.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;}
-.bh-amount{font-size:2.5rem;font-weight:800;letter-spacing:-1.5px;line-height:1;color:var(--text);}
-.bh-amount.neg{color:var(--red);}
-.bh-pills{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
-.bhpill{background:var(--surface);border:1.5px solid var(--border);border-radius:13px;padding:10px 12px;}
-.bhpill-lbl{font-size:.6rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
-.bhpill-val{font-size:.95rem;font-weight:800;letter-spacing:-.2px;}
-.bhpill-val.g{color:var(--green);}
-.bhpill-val.r{color:var(--red);}
+/* BALANCE HERO — cartão gradiente moderno */
+.balance-hero{padding:4px 18px 16px;}
+.bh-card{
+  background:linear-gradient(135deg,#00897b 0%,#00695c 60%,#004d40 100%);
+  border-radius:22px;
+  padding:20px 20px 16px;
+  box-shadow:0 8px 28px rgba(0,137,123,.35),0 2px 8px rgba(0,0,0,.1);
+  position:relative;
+  overflow:hidden;
+}
+.bh-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;border-radius:50%;
+  background:rgba(255,255,255,.07);
+}
+.bh-card::after{
+  content:'';position:absolute;bottom:-30px;left:-20px;
+  width:110px;height:110px;border-radius:50%;
+  background:rgba(255,255,255,.05);
+}
+.bh-label{font-size:.62rem;font-weight:600;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;}
+.bh-amount{font-size:2.6rem;font-weight:800;letter-spacing:-1.5px;line-height:1;color:#fff;position:relative;z-index:1;}
+.bh-amount.neg{color:#ffcccc;}
+.bh-pills{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;position:relative;z-index:1;}
+.bhpill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:13px;padding:10px 12px;backdrop-filter:blur(4px);}
+.bhpill-lbl{font-size:.6rem;font-weight:600;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.bhpill-val{font-size:.95rem;font-weight:800;letter-spacing:-.2px;color:#fff;}
+.bhpill-val.g{color:#7fffd4;}
+.bhpill-val.r{color:#ffaaaa;}
+
+/* 3rd pill — invest */
+.bhpill-invest{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);}
+.bhpill-invest .bhpill-lbl{color:rgba(255,255,255,.6);}
+.bhpill-invest .bhpill-val{color:#b2dfdb;}
+
+/* Badge mês */
+.bh-month-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.75rem;font-weight:800;letter-spacing:.2px;
+  color:rgba(255,255,255,.9);
+  margin-bottom:8px;position:relative;z-index:1;
+}
 
 /* MONTH SCROLL base (reutilizado em Cartões também) */
 .month-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 18px 12px;}
@@ -80,32 +116,20 @@ html,body{
 
 /* MONTH SELECTOR BAR — proeminente, acima do saldo */
 .month-selector-bar{
-  background:var(--surface);
-  border-bottom:1.5px solid var(--border);
+  background:transparent;
   padding:0;
   position:relative;
 }
 .month-selector-bar .month-scroll{
-  padding:10px 18px 10px;
+  padding:8px 18px 8px;
   gap:7px;
 }
-.mpill{flex-shrink:0;padding:6px 14px;border-radius:20px;background:var(--bg);border:1.5px solid var(--border);font-size:.76rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .18s;white-space:nowrap;}
-.mpill.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(0,137,123,.3);}
+.mpill{flex-shrink:0;padding:6px 14px;border-radius:20px;background:var(--surface);border:1.5px solid var(--border2);font-size:.76rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .18s;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.mpill.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:800;box-shadow:0 3px 12px rgba(0,137,123,.35);}
 .mpill.has-data::after{content:'';display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin-left:5px;vertical-align:middle;}
 .mpill.active.has-data::after{background:rgba(255,255,255,.7);}
 
-/* BALANCE HERO com badge de mês */
-.balance-hero{padding:14px 18px 14px;}
-.bh-month-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:.75rem;font-weight:800;letter-spacing:.2px;
-  color:var(--accent2);
-  background:var(--accent-light);
-  border:1.5px solid rgba(0,137,123,.2);
-  border-radius:20px;padding:4px 12px;
-  margin-bottom:10px;
-}
-.bh-month-badge::before{content:'📅';font-size:.7rem;}
+/* bh-month-badge (handled above) */
 
 
 /* SECTION */
@@ -138,21 +162,21 @@ html,body{
 .goal-fill.over{background:var(--orange);}
 
 /* CHART */
-.chart-card{background:var(--surface);border-radius:14px;padding:14px;margin:0 18px 11px;border:1.5px solid var(--border);}
+.chart-card{background:var(--surface);border-radius:16px;padding:14px;margin:0 18px 11px;border:1.5px solid var(--border);box-shadow:var(--card-shadow);}
 .chart-wrap{position:relative;height:175px;}
 .chart-legend{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--text2);}
 .legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 
 /* HOME OVERVIEW CHART */
-.overview-card{background:var(--surface);border-radius:18px;margin:0 18px 13px;border:1.5px solid var(--border);overflow:hidden;}
-.overview-header{padding:13px 15px 0;display:flex;align-items:center;justify-content:space-between;}
-.overview-title{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
+.overview-card{background:var(--surface);border-radius:18px;margin:0 18px 13px;border:1.5px solid var(--border);overflow:hidden;box-shadow:var(--card-shadow);}
+.overview-header{padding:14px 15px 0;display:flex;align-items:center;justify-content:space-between;}
+.overview-title{font-size:.63rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
 .overview-tabs{display:flex;gap:4px;}
 .ovtab{padding:3px 9px;border-radius:10px;font-size:.62rem;font-weight:700;border:none;cursor:pointer;font-family:'Inter',sans-serif;background:var(--bg);color:var(--muted);transition:all .15s;}
 .ovtab.active{background:var(--accent);color:#fff;}
-.overview-chart-wrap{position:relative;height:140px;padding:10px 8px 0;}
-.overview-health{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--border);margin-top:8px;}
+.overview-chart-wrap{position:relative;height:160px;padding:10px 8px 4px;}
+.overview-health{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--border);margin-top:4px;}
 .oh-item{padding:10px 12px;text-align:center;border-right:1px solid var(--border);}
 .oh-item:last-child{border-right:none;}
 .oh-lbl{font-size:.56rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
@@ -342,12 +366,12 @@ html,body{
 .bottom-tabs{position:fixed;bottom:0;left:0;right:0;height:var(--tab-h);display:flex;align-items:center;padding-bottom:var(--safe-bottom);z-index:200;padding-left:12px;padding-right:12px;pointer-events:none;}
 .tabs-glass{
   width:100%;
-  background:rgba(242,244,248,.55);
+  background:rgba(238,240,245,.62);
   -webkit-backdrop-filter:saturate(180%) blur(40px);
   backdrop-filter:saturate(180%) blur(40px);
   border-radius:24px;
-  border:1.5px solid rgba(255,255,255,.85);
-  box-shadow:0 8px 32px rgba(0,0,0,.13),0 1.5px 0 rgba(255,255,255,.95) inset,0 -1px 0 rgba(0,0,0,.04) inset;
+  border:1.5px solid rgba(255,255,255,.88);
+  box-shadow:0 8px 32px rgba(0,0,0,.11),0 1.5px 0 rgba(255,255,255,.95) inset,0 -1px 0 rgba(0,0,0,.04) inset;
   display:flex;align-items:center;padding:6px 4px;
   pointer-events:all;
   isolation:isolate;
@@ -363,8 +387,8 @@ html,body{
 .tab-item.active .tab-active-dot{opacity:1;transform:scale(1);}
 
 /* SCROLL-AWARE HEADER */
-.page-hdr{padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;background:rgba(242,244,248,.85);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(228,232,240,0);transition:border-color .2s,box-shadow .2s;}
-.page-hdr.scrolled{border-bottom-color:rgba(228,232,240,.7);box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.page-hdr{padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;background:rgba(238,240,245,.88);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(228,232,240,0);transition:border-color .2s,box-shadow .2s;}
+.page-hdr.scrolled{border-bottom-color:rgba(208,214,224,.7);box-shadow:0 2px 12px rgba(0,0,0,.06);}
 
 /* SCREENS — simples e sem bug */
 .screens{flex:1;overflow:hidden;position:relative;}
@@ -467,10 +491,7 @@ html,body{
 .eye-btn:active{background:var(--bg);}
 .privacy-blur{filter:blur(7px);user-select:none;transition:filter .25s;}
 
-/* INVEST PILL (3rd pill on home) */
-.bhpill-invest{background:linear-gradient(135deg,rgba(0,137,123,.08),rgba(0,137,123,.04));border-color:rgba(0,137,123,.25);}
-.bhpill-invest .bhpill-lbl{color:var(--accent2);}
-.bhpill-invest .bhpill-val{color:var(--accent);}
+/* INVEST PILL handled in bh-card section above */
 
 /* EXTRA INCOME QUICK ADD BUTTON */
 .extra-add-btn{display:inline-flex;align-items:center;gap:5px;background:var(--accent-light);border:1.5px solid var(--accent);color:var(--accent2);border-radius:18px;padding:4px 12px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
@@ -525,14 +546,17 @@ html,body{
 
       <!-- Saldo com mês destacado -->
       <div class="balance-hero">
-        <div class="bh-month-badge" id="ghMonthBadge">Janeiro · 2026</div>
-        <div class="bh-amount" id="ghBalance">R$ 0,00</div>
-        <div class="bh-pills">
-          <div class="bhpill"><div class="bhpill-lbl">↑ Receitas</div><div class="bhpill-val g" id="ghIncome">R$ 0,00</div></div>
-          <div class="bhpill"><div class="bhpill-lbl">↓ Gastos</div><div class="bhpill-val r" id="ghExpense">R$ 0,00</div></div>
-        </div>
-        <div class="bh-pills" style="margin-top:8px;grid-template-columns:1fr;">
-          <div class="bhpill bhpill-invest"><div class="bhpill-lbl">📈 Total Investido</div><div class="bhpill-val" id="ghInvest">R$ 0,00</div></div>
+        <div class="bh-card">
+          <div class="bh-month-badge" id="ghMonthBadge">📅 Janeiro · 2026</div>
+          <div class="bh-label">SALDO DO MÊS</div>
+          <div class="bh-amount" id="ghBalance">R$ 0,00</div>
+          <div class="bh-pills">
+            <div class="bhpill"><div class="bhpill-lbl">↑ Receitas</div><div class="bhpill-val g" id="ghIncome">R$ 0,00</div></div>
+            <div class="bhpill"><div class="bhpill-lbl">↓ Gastos</div><div class="bhpill-val r" id="ghExpense">R$ 0,00</div></div>
+          </div>
+          <div class="bh-pills" style="margin-top:8px;grid-template-columns:1fr;">
+            <div class="bhpill bhpill-invest"><div class="bhpill-lbl">📈 Total Investido</div><div class="bhpill-val" id="ghInvest">R$ 0,00</div></div>
+          </div>
         </div>
       </div>
 
@@ -1189,7 +1213,7 @@ function renderHome(){
   document.getElementById('ghExpense').textContent=fmt(t.expense);
   // Badge mês/ano
   const badge=document.getElementById('ghMonthBadge');
-  if(badge) badge.textContent=`${MONTHS[currentMonth]} · ${currentYear}`;
+  if(badge) badge.textContent=`📅 ${MONTHS[currentMonth]} · ${currentYear}`;
   // Invest total
   const invs=DB.investments||[];
   let totalInvested=0;invs.forEach(i=>{const c=calcInvestment(i);totalInvested+=c.invested;});
@@ -1246,11 +1270,17 @@ function renderHome(){
 
   html+=`<div class="overview-card" id="overviewCard">
     <div class="overview-header">
-      <span class="overview-title">Visão Geral · 6 meses</span>
+      <span class="overview-title">📊 Visão Geral · 6 meses</span>
       <div class="overview-tabs">
         <button class="ovtab${overviewMode==='bar'?' active':''}" onclick="setOverviewMode('bar')">Barras</button>
         <button class="ovtab${overviewMode==='line'?' active':''}" onclick="setOverviewMode('line')">Linha</button>
       </div>
+    </div>
+    <div style="display:flex;gap:10px;padding:8px 15px 0;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--muted);"><div style="width:8px;height:8px;border-radius:50%;background:#00a86b;flex-shrink:0"></div>Receitas</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--muted);"><div style="width:8px;height:8px;border-radius:50%;background:#e53935;flex-shrink:0"></div>Gastos</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--muted);"><div style="width:8px;height:8px;border-radius:50%;background:#f57c00;flex-shrink:0"></div>Faturas</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--muted);"><div style="width:8px;height:8px;border-radius:50%;background:#00897b;flex-shrink:0"></div>Saldo</div>
     </div>
     <div class="overview-chart-wrap"><canvas id="overviewChart"></canvas></div>
     <div class="overview-health">
@@ -1379,15 +1409,18 @@ function renderHome(){
   document.getElementById('homeContent').innerHTML=html;
 
   if(ck.length){
-    if(chartInst){chartInst.destroy();chartInst=null;}
-    const ctx=document.getElementById('catChart');
-    const colors=ck.map(k=>getCat(k).color);
-    chartInst=new Chart(ctx,{type:'doughnut',data:{labels:ck.map(k=>getCat(k).label),datasets:[{data:ck.map(k=>cm[k]),backgroundColor:colors,borderColor:'#ffffff',borderWidth:2,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)}`}}}}});
-    document.getElementById('chartLegend').innerHTML=ck.map((k,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>${getCat(k).label}: ${fmt(cm[k])}</div>`).join('');
+    requestAnimationFrame(()=>{
+      if(chartInst){chartInst.destroy();chartInst=null;}
+      const ctx=document.getElementById('catChart');
+      if(!ctx)return;
+      const colors=ck.map(k=>getCat(k).color);
+      chartInst=new Chart(ctx,{type:'doughnut',data:{labels:ck.map(k=>getCat(k).label),datasets:[{data:ck.map(k=>cm[k]),backgroundColor:colors,borderColor:'#f7f8fc',borderWidth:2,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)}`}}}}});
+      document.getElementById('chartLegend').innerHTML=ck.map((k,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>${getCat(k).label}: ${fmt(cm[k])}</div>`).join('');
+    });
   }
 
-  // Draw overview chart
-  drawOverviewChart(ovLabels, ovIncome, ovExpense, ovBalance, ovFatura);
+  // Draw overview chart — defer to ensure canvas is in DOM
+  requestAnimationFrame(()=>drawOverviewChart(ovLabels, ovIncome, ovExpense, ovBalance, ovFatura));
 
   // Apply privacy if active
   if(privacyMode) applyPrivacyBlur();
