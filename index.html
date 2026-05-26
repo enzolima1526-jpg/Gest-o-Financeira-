@@ -38,7 +38,7 @@ html,body{
 /* WELCOME */
 .welcome{position:fixed;inset:0;z-index:1000;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;transition:opacity .4s,transform .4s;}
 .welcome.hide{opacity:0;transform:scale(1.04);pointer-events:none;}
-.welcome-logo{width:68px;height:68px;border-radius:20px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,137,123,.3);}
+.welcome-logo{width:68px;height:68px;border-radius:20px;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,137,123,.3);}.welcome-logo svg{width:32px;height:32px;stroke:#fff;stroke-width:1.8;}
 .welcome-title{font-size:1.8rem;font-weight:800;color:var(--text);text-align:center;margin-bottom:6px;letter-spacing:-.5px;}
 .welcome-accent{color:var(--accent);}
 .welcome-sub{font-size:.86rem;color:var(--muted);text-align:center;margin-bottom:32px;line-height:1.5;}
@@ -225,7 +225,7 @@ html,body{
 .id-dot{width:4px;height:4px;border-radius:50%;background:var(--muted2);}
 .id-dot.done{background:var(--accent);}
 .empty{text-align:center;padding:28px 20px;color:var(--muted);}
-.empty-icon{font-size:1.8rem;margin-bottom:7px;}
+.empty-icon{display:flex;justify-content:center;margin-bottom:10px;color:var(--muted2);}
 .empty-text{font-size:.8rem;}
 
 /* CARDS SUMMARY */
@@ -302,38 +302,10 @@ html,body{
 .cat-btn-label{font-size:.56rem;font-weight:600;color:var(--muted);text-align:center;line-height:1.2;}
 .cat-btn.selected .cat-btn-label{color:var(--accent2);}
 
-/* YEAR SCREEN — fundo mais escuro para melhor contraste */
-#screen-year{background:linear-gradient(160deg,#0d1a2e 0%,#112233 60%,#0a1520 100%);}
-#screen-year .page-hdr{background:rgba(10,20,35,.88);border-bottom-color:rgba(0,137,123,.25);}
-#screen-year .page-hdr .lbl{color:rgba(255,255,255,.45);}
-#screen-year .page-hdr .ttl{color:#fff;}
-#screen-year .year-sel{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);}
-#screen-year .year-arr{color:#4dd9c0;}
-#screen-year .year-lbl{color:#fff;}
-#screen-year .chart-card{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);}
-#screen-year .chart-card div{color:rgba(255,255,255,.6);}
-#screen-year .year-grid{padding:0 16px;margin-bottom:14px;}
-#screen-year .year-cell{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);}
-#screen-year .year-cell:active{background:rgba(0,137,123,.25);}
-#screen-year .yc-name{color:rgba(255,255,255,.55);}
-#screen-year .yc-bal.pos{color:#4dffb0;}
-#screen-year .yc-bal.neg{color:#ff7070;}
-#screen-year .yc-bal.zero{color:rgba(255,255,255,.35);}
-#screen-year .sec-title{color:rgba(255,255,255,.5);}
-#screen-year .gcard{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);}
-#screen-year .entry-row{border-bottom-color:rgba(255,255,255,.07);}
-#screen-year .entry-name{color:#fff;}
-#screen-year .entry-sub{color:rgba(255,255,255,.45);}
-#screen-year .entry-amount.exp{color:#ff7070;}
-#screen-year .entry-amount.inc{color:#4dffb0;}
-#screen-year .entry-stat{color:rgba(255,255,255,.4);}
-#screen-year .bh-label{color:rgba(255,255,255,.55);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:18px 18px 4px;}
-#screen-year .bh-amount{color:#fff;font-size:2.2rem;font-weight:800;padding:0 18px 6px;letter-spacing:-1px;}
+/* YEAR SCREEN — mesmo tema do resto do app */
+#screen-year .bh-label{color:var(--muted);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:18px 18px 4px;}
+#screen-year .bh-amount{color:var(--text);font-size:2.2rem;font-weight:800;padding:0 18px 6px;letter-spacing:-1px;}
 #screen-year .bh-pills{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px;margin-top:0;}
-#screen-year .bhpill{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.13);}
-#screen-year .bhpill-lbl{color:rgba(255,255,255,.5);}
-#screen-year .bhpill-val.g{color:#4dffb0;}
-#screen-year .bhpill-val.r{color:#ff7070;}
 #screen-year .balance-hero{padding:0 0 4px;}
 
 /* YEAR GRID */
@@ -403,7 +375,7 @@ html,body{
 .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:5px 4px;border:none;background:none;border-radius:16px;transition:all .2s cubic-bezier(.34,1.56,.64,1);position:relative;}
 .tab-item:active{opacity:.7;transform:scale(.9);}
 .tab-item.active{background:rgba(0,137,123,.11);}
-.tab-icon{font-size:1.15rem;line-height:1;transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
+.tab-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;transition:transform .2s cubic-bezier(.34,1.56,.64,1);color:var(--muted);}.tab-icon svg{width:20px;height:20px;stroke:currentColor;transition:stroke .18s;}.tab-item.active .tab-icon{color:var(--accent);}
 .tab-item.active .tab-icon{transform:scale(1.18) translateY(-1px);}
 .tab-label{font-size:.5rem;font-weight:500;color:var(--muted);transition:color .18s,font-weight .18s;}
 .tab-item.active .tab-label{color:var(--accent);font-weight:700;}
@@ -523,13 +495,21 @@ html,body{
 .extra-add-btn:active{opacity:.8;}
 .salary-quick-btn{display:inline-flex;align-items:center;gap:5px;background:#e8f5e9;border:1.5px solid #2e7d32;color:#1b5e20;border-radius:18px;padding:4px 12px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
 .salary-quick-btn:active{opacity:.8;}
+/* HOME CHARTS SECTION */
+.home-charts-section{padding:0 16px;margin-bottom:10px;}
+.hcs-card{background:var(--surface);border-radius:18px;padding:14px 14px 10px;border:1.5px solid var(--border);box-shadow:var(--sh);}
+.hcs-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.hcs-title{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;}
+.hcs-val{font-size:.88rem;font-weight:800;letter-spacing:-.2px;}
+.hcs-chart-wrap{position:relative;height:140px;}
+.hcs-empty{text-align:center;padding:18px 0;font-size:.75rem;color:var(--muted);}
 </style>
 </head>
 <body>
 
 <!-- WELCOME -->
 <div class="welcome" id="welcomeScreen">
-  <div class="welcome-logo">💸</div>
+  <div class="welcome-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><circle cx="17" cy="13" r="1" fill="currentColor"/></svg></div>
   <div class="welcome-title">Minhas <span class="welcome-accent">Finanças</span></div>
   <div class="welcome-sub">Controle total do seu dinheiro.<br>Simples, rápido e moderno.</div>
   <div class="welcome-form">
@@ -537,11 +517,11 @@ html,body{
     <input class="wf-input" id="wName" placeholder="Como posso te chamar?">
     <label class="wf-label">Objetivo principal</label>
     <select class="wf-select" id="wGoal">
-      <option value="Economizar dinheiro">💰 Economizar dinheiro</option>
-      <option value="Controlar gastos">📊 Controlar gastos</option>
-      <option value="Quitar dívidas">💳 Quitar dívidas</option>
-      <option value="Investir mais">📈 Investir mais</option>
-      <option value="Organizar as finanças">✅ Organizar as finanças</option>
+      <option value="Economizar dinheiro">Economizar dinheiro</option>
+      <option value="Controlar gastos">Controlar gastos</option>
+      <option value="Quitar dívidas">Quitar dívidas</option>
+      <option value="Investir mais">Investir mais</option>
+      <option value="Organizar as finanças">Organizar as finanças</option>
     </select>
     <button class="btn-welcome" onclick="saveProfile()">Começar →</button>
     <button class="welcome-skip" onclick="skipWelcome()">Já tenho conta, pular</button>
@@ -567,15 +547,15 @@ html,body{
       <div class="balance-hero">
         <div class="bh-card">
           <div class="bh-toprow">
-            <div class="bh-month-badge" id="ghMonthBadge">📅 Janeiro · 2026</div>
-            <button class="eye-btn" id="eyeBtn" style="color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;" onclick="togglePrivacy()"><svg id="eyeIcon" width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 1C6 1 2 5.5 1 8c1 2.5 5 7 10 7s9-4.5 10-7C20 5.5 16 1 11 1z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="11" cy="8" r="3" stroke="currentColor" stroke-width="1.7" fill="none"/><circle cx="11" cy="8" r="1.2" fill="currentColor"/><path id="eyeSlash" d="M3 2 L19 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="display:none"/></svg></button>
+            <div class="bh-month-badge" id="ghMonthBadge">Janeiro · 2026</div>
+            <button class="eye-btn" id="eyeBtn" style="color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;" onclick="togglePrivacy()"><svg id="eyeIcon" width="22" height="16" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 9C3 4 7 1 12 1s9 3 11 8c-2 5-6 8-11 8S3 14 1 9z"/><circle cx="12" cy="9" r="3"/><line id="eyeSlash" x1="3" y1="2" x2="21" y2="16" stroke="currentColor" stroke-width="1.8" style="display:none"/></svg></button>
           </div>
           <div class="bh-label">SALDO DO MÊS</div>
           <div class="bh-amount" id="ghBalance">R$ 0,00</div>
           <div class="bh-pills">
             <div class="bhpill"><div class="bhpill-lbl">↑ Receitas</div><div class="bhpill-val g" id="ghIncome">R$ 0,00</div></div>
             <div class="bhpill"><div class="bhpill-lbl">↓ Gastos</div><div class="bhpill-val r" id="ghExpense">R$ 0,00</div></div>
-            <div class="bhpill bhpill-invest"><div class="bhpill-lbl">📈 Total Investido</div><div class="bhpill-val" id="ghInvest">R$ 0,00</div></div>
+            <div class="bhpill bhpill-invest"><div class="bhpill-lbl">Total Investido</div><div class="bhpill-val" id="ghInvest">R$ 0,00</div></div>
           </div>
         </div>
       </div>
@@ -610,7 +590,7 @@ html,body{
         <div class="page-hdr-left"><div class="lbl">Gestão de</div><div class="ttl">Cartões</div></div>
         <div class="page-hdr-right">
           <div class="year-sel"><button class="year-arr" onclick="changeYear(-1);renderCards()">‹</button><div class="year-lbl" id="cardsYearLbl">2026</div><button class="year-arr" onclick="changeYear(1);renderCards()">›</button></div>
-          <button class="hbtn-round" onclick="openPdfModal()">📄 Fatura</button>
+          <button class="hbtn-round" onclick="openPdfModal()">Fatura</button>
           <button class="hbtn-round" style="min-width:34px;padding:0;" onclick="openAddCard()">+</button>
         </div>
       </div>
@@ -648,12 +628,12 @@ html,body{
 
   <div class="bottom-tabs">
     <div class="tabs-glass">
-      <button class="tab-item active" id="tab-home" onclick="switchTab('home')"><div class="tab-icon">🏠</div><div class="tab-label">Início</div><div class="tab-active-dot"></div></button>
-      <button class="tab-item" id="tab-year" onclick="switchTab('year')"><div class="tab-icon">📊</div><div class="tab-label">Anual</div><div class="tab-active-dot"></div></button>
-      <button class="tab-item" id="tab-cards" onclick="switchTab('cards')"><div class="tab-icon">💳</div><div class="tab-label">Cartões</div><div class="tab-active-dot"></div></button>
-      <button class="tab-item" id="tab-faturas" onclick="switchTab('faturas')"><div class="tab-icon">🧾</div><div class="tab-label">Faturas</div><div class="tab-active-dot"></div></button>
-      <button class="tab-item" id="tab-invest" onclick="switchTab('invest')"><div class="tab-icon">📈</div><div class="tab-label">Investir</div><div class="tab-active-dot"></div></button>
-      <button class="tab-item" id="tab-profile" onclick="switchTab('profile')"><div class="tab-icon">👤</div><div class="tab-label">Perfil</div><div class="tab-active-dot"></div></button>
+      <button class="tab-item active" id="tab-home" onclick="switchTab('home')"><div class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div><div class="tab-label">Início</div><div class="tab-active-dot"></div></button>
+      <button class="tab-item" id="tab-year" onclick="switchTab('year')"><div class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 16l3-4 3 3 4-6"/></svg></div><div class="tab-label">Anual</div><div class="tab-active-dot"></div></button>
+      <button class="tab-item" id="tab-cards" onclick="switchTab('cards')"><div class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div class="tab-label">Cartões</div><div class="tab-active-dot"></div></button>
+      <button class="tab-item" id="tab-faturas" onclick="switchTab('faturas')"><div class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div><div class="tab-label">Faturas</div><div class="tab-active-dot"></div></button>
+      <button class="tab-item" id="tab-invest" onclick="switchTab('invest')"><div class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="tab-label">Investir</div><div class="tab-active-dot"></div></button>
+      <button class="tab-item" id="tab-profile" onclick="switchTab('profile')"><div class="tab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><div class="tab-label">Perfil</div><div class="tab-active-dot"></div></button>
     </div>
   </div>
 </div>
@@ -665,7 +645,7 @@ html,body{
     <div class="modal-header">
       <div>
         <div class="modal-title">Novo Lançamento</div>
-        <div style="font-size:.68rem;color:var(--accent2);font-weight:700;margin-top:2px;" id="addModalMonthLabel">📅 Janeiro · 2026</div>
+        <div style="font-size:.68rem;color:var(--accent2);font-weight:700;margin-top:2px;" id="addModalMonthLabel">Janeiro · 2026</div>
       </div>
       <button class="modal-close" onclick="closeAdd()">✕</button>
     </div>
@@ -683,9 +663,9 @@ html,body{
       </div>
 
       <div class="type-tabs">
-        <button class="type-tab active" id="tt-exp" onclick="setAddType('exp')">💸 Gasto</button>
-        <button class="type-tab" id="tt-inc" onclick="setAddType('inc')">💰 Receita</button>
-        <button class="type-tab" id="tt-inst" onclick="setAddType('inst')">🔄 Parcela</button>
+        <button class="type-tab active" id="tt-exp" onclick="setAddType('exp')">Gasto</button>
+        <button class="type-tab" id="tt-inc" onclick="setAddType('inc')">Receita</button>
+        <button class="type-tab" id="tt-inst" onclick="setAddType('inst')">Parcela</button>
       </div>
 
       <!-- INCOME QUICK OPTIONS (só aparece no tab Receita) -->
@@ -693,12 +673,12 @@ html,body{
         <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">Tipo de Receita</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px;" id="incTypeGrid">
           <button class="inc-type-btn selected" id="iqt-extra" onclick="setIncType('extra')">
-            <div style="font-size:1.3rem">💵</div>
+            
             <div style="font-size:.73rem;font-weight:700;margin-top:3px">Renda Extra</div>
             <div style="font-size:.6rem;color:var(--muted);margin-top:1px">Pontual, este mês</div>
           </button>
           <button class="inc-type-btn" id="iqt-salary" onclick="setIncType('salary')">
-            <div style="font-size:1.3rem">💼</div>
+            
             <div style="font-size:.73rem;font-weight:700;margin-top:3px">Salário Fixo</div>
             <div style="font-size:.6rem;color:var(--muted);margin-top:1px">Repete todo mês</div>
           </button>
@@ -710,7 +690,7 @@ html,body{
         </div>
         <!-- Salary info box (oculto por padrão) -->
         <div id="salaryInfoBox" class="hidden">
-          <div class="info-box">💼 O <strong>salário fixo</strong> será adicionado automaticamente todo mês a partir do mês atual. Você pode ajustar o valor de qualquer mês depois.</div>
+          <div class="info-box">O <strong>salário fixo</strong> será adicionado automaticamente todo mês a partir do mês atual. Você pode ajustar o valor de qualquer mês depois.</div>
           <div class="form-row">
             <div class="form-group"><label class="form-label">Dia do pagamento</label><input class="form-input" id="fSalaryDay" type="number" placeholder="Ex: 5" min="1" max="31" inputmode="numeric"></div>
           </div>
@@ -722,7 +702,7 @@ html,body{
       <div class="form-group" id="fCatGroup"><label class="form-label">Categoria</label><div class="cat-grid" id="catGrid"></div></div>
       <div class="form-group" id="fCardGroup"><label class="form-label">Cartão (opcional)</label><select class="form-select" id="fCard"><option value="">Sem cartão</option></select></div>
       <div id="instExtra" class="hidden">
-        <div class="info-box">💡 Informe o <strong>valor total</strong> da compra. O app divide e consome o <strong>limite completo</strong> imediatamente. Conforme as faturas forem pagas, o limite é liberado.</div>
+        <div class="info-box">Informe o <strong>valor total</strong> da compra. O app divide e consome o <strong>limite completo</strong> imediatamente. Conforme as faturas forem pagas, o limite é liberado.</div>
         <div class="form-group"><label class="form-label">Valor Total da Compra (R$)</label><input class="form-input" id="fInstTotal" type="number" placeholder="Ex: 500,00" min="0" step="0.01" inputmode="decimal" oninput="updateInstPreview()"></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Nº Parcelas</label><input class="form-input" id="fParcels" type="number" placeholder="Ex: 5" min="2" max="60" inputmode="numeric" oninput="updateInstPreview()"></div>
@@ -746,12 +726,12 @@ html,body{
       <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">Tipo</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
         <button class="ri-type-btn selected" id="rit-salario" onclick="setRiType('salario')">
-          <div style="font-size:1.4rem">💼</div>
+          
           <div class="ri-type-label">Salário Fixo</div>
           <div class="ri-type-sub">Cai todo mês, valor fixo</div>
         </button>
         <button class="ri-type-btn" id="rit-variavel" onclick="setRiType('variavel')">
-          <div style="font-size:1.4rem">💰</div>
+          
           <div class="ri-type-label">Renda Variável</div>
           <div class="ri-type-sub">Freelance, aluguel, outros</div>
         </button>
@@ -790,7 +770,7 @@ html,body{
 <div class="modal-overlay" id="goalModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-header"><div class="modal-title">🎯 Meta de Economia</div><button class="modal-close" onclick="closeGoal()">✕</button></div>
+    <div class="modal-header"><div class="modal-title">Meta de Economia</div><button class="modal-close" onclick="closeGoal()">✕</button></div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">Meta mensal (R$)</label><input class="form-input" id="goalInput" type="number" placeholder="Ex: 500,00" min="0" step="0.01" inputmode="decimal"></div>
       <button class="btn-primary" onclick="saveGoal()">Salvar Meta</button>
@@ -838,16 +818,16 @@ html,body{
     <div class="modal-body">
       <div class="form-group"><label class="form-label">Tipo de Investimento</label>
         <select class="form-select" id="iType" onchange="updateInvestFields()">
-          <option value="CDB">🏦 CDB</option>
-          <option value="Tesouro Direto">🇧🇷 Tesouro Direto</option>
-          <option value="Ações">📈 Ações</option>
-          <option value="FII">🏢 FII</option>
-          <option value="Poupança">💰 Poupança</option>
-          <option value="Cripto">₿ Cripto</option>
-          <option value="LCI/LCA">🏠 LCI/LCA</option>
-          <option value="Capitalização">🎰 Capitalização</option>
-          <option value="Banco">🏛 Banco</option>
-          <option value="Outros">📦 Outros</option>
+          <option value="CDB">CDB</option>
+          <option value="Tesouro Direto">Tesouro Direto</option>
+          <option value="Ações">Ações</option>
+          <option value="FII">FII</option>
+          <option value="Poupança">Poupança</option>
+          <option value="Cripto">Cripto</option>
+          <option value="LCI/LCA">LCI/LCA</option>
+          <option value="Capitalização">Capitalização</option>
+          <option value="Banco">Banco</option>
+          <option value="Outros">Outros</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Nome / Descrição</label><input class="form-input" id="iDesc" placeholder="Ex: CDB Nubank, Tesouro IPCA 2029..."></div>
@@ -855,7 +835,7 @@ html,body{
 
       <!-- CAPITALIZAÇÃO fields -->
       <div id="iCapFields" class="hidden">
-        <div class="info-box">🎰 Informe a data do <strong>1º débito</strong> (ex: dia 4) e o dia recorrente dos meses seguintes (ex: dia 7). O app calcula automaticamente quantas parcelas já foram debitadas.</div>
+        <div class="info-box">Informe a data do <strong>1º débito</strong> (ex: dia 4) e o dia recorrente dos meses seguintes (ex: dia 7). O app calcula automaticamente quantas parcelas já foram debitadas.</div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Valor Mensal (R$)</label><input class="form-input" id="iCapMonthly" type="number" placeholder="Ex: 120,00" min="0" step="0.01" inputmode="decimal" oninput="updateCapPreview()"></div>
           <div class="form-group"><label class="form-label">Total de Meses</label><input class="form-input" id="iCapMonths" type="number" placeholder="Ex: 60" min="1" inputmode="numeric" oninput="updateCapPreview()"></div>
@@ -892,12 +872,12 @@ html,body{
 <div class="modal-overlay" id="pdfModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-header"><div class="modal-title">📄 Importar Fatura PDF</div><button class="modal-close" onclick="closePdfModal()">✕</button></div>
+    <div class="modal-header"><div class="modal-title">Importar Fatura PDF</div><button class="modal-close" onclick="closePdfModal()">✕</button></div>
     <div class="modal-body">
       <div id="pdfInitial">
         <div class="info-box">A IA vai ler sua fatura e extrair os lançamentos automaticamente. Funciona melhor com PDFs de bancos digitais (Nubank, Inter, C6, etc).</div>
         <div class="form-group"><label class="form-label">Cartão desta fatura</label><select class="form-select" id="pdfCardSelect"><option value="">Nenhum cartão específico</option></select></div>
-        <button class="btn-primary" onclick="document.getElementById('pdfInput').click()">📄 Selecionar PDF da Fatura</button>
+        <button class="btn-primary" onclick="document.getElementById('pdfInput').click()">Selecionar PDF da Fatura</button>
       </div>
       <div id="pdfLoading" class="hidden">
         <div style="font-size:2rem;margin-bottom:12px;">⏳</div>
@@ -909,11 +889,11 @@ html,body{
         <div id="pdfItemsList"></div>
         <div style="display:flex;gap:8px;margin-top:14px;">
           <button class="btn-secondary" style="margin-top:0;flex:1" onclick="closePdfModal()">Cancelar</button>
-          <button class="btn-primary" style="margin-top:0;flex:2" onclick="confirmPdfImport()">✓ Importar Todos</button>
+          <button class="btn-primary" style="margin-top:0;flex:2" onclick="confirmPdfImport()">Importar Todos</button>
         </div>
       </div>
       <div id="pdfError" class="hidden" style="text-align:center;padding:24px 0;">
-        <div style="font-size:1.5rem;margin-bottom:8px;">⚠️</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--orange);margin-bottom:8px;">Atenção</div>
         <div style="font-size:.85rem;color:var(--red);font-weight:500;" id="pdfErrorMsg">Erro ao ler o PDF</div>
         <button class="btn-secondary" style="margin-top:16px" onclick="closePdfModal()">Fechar</button>
       </div>
@@ -929,7 +909,7 @@ html,body{
     <div class="modal-body">
       <div style="text-align:center;margin-bottom:16px">
         <div id="epAvatarPreview" style="width:70px;height:70px;border-radius:50%;background:var(--accent-light);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:var(--accent);margin:0 auto 8px;overflow:hidden;cursor:pointer;" onclick="triggerPhotoUpload()"></div>
-        <div style="font-size:.72rem;color:var(--accent);font-weight:600;cursor:pointer;" onclick="triggerPhotoUpload()">📷 Alterar foto</div>
+        <div style="font-size:.72rem;color:var(--accent);font-weight:600;cursor:pointer;" onclick="triggerPhotoUpload()">Alterarar foto</div>
         <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
       </div>
       <div class="form-row">
@@ -941,11 +921,11 @@ html,body{
       <div class="form-group"><label class="form-label">Telefone</label><input class="form-input" id="epPhone" placeholder="(00) 00000-0000" inputmode="numeric" oninput="maskPhone(this)"></div>
       <div class="form-group"><label class="form-label">Objetivo</label>
         <select class="form-select" id="epGoal">
-          <option value="Economizar dinheiro">💰 Economizar dinheiro</option>
-          <option value="Controlar gastos">📊 Controlar gastos</option>
-          <option value="Quitar dívidas">💳 Quitar dívidas</option>
-          <option value="Investir mais">📈 Investir mais</option>
-          <option value="Organizar as finanças">✅ Organizar as finanças</option>
+          <option value="Economizar dinheiro">Economizar dinheiro</option>
+          <option value="Controlar gastos">Controlar gastos</option>
+          <option value="Quitar dívidas">Quitar dívidas</option>
+          <option value="Investir mais">Investir mais</option>
+          <option value="Organizar as finanças">Organizar as finanças</option>
         </select>
       </div>
       <button class="btn-primary" onclick="saveEditProfile()">Salvar Perfil</button>
@@ -1031,6 +1011,7 @@ let addType='exp';
 let selectedCat='outros';
 let chartInst=null;
 let overviewChartInst=null;
+let homeIncomeChart=null,homeExpenseChart=null;
 let overviewMode='bar'; // 'bar' | 'line'
 let editingCardId=null;
 let editingInvestId=null;
@@ -1236,7 +1217,7 @@ function renderHome(){
   document.getElementById('ghExpense').textContent=fmt(t.expense);
   // Badge mês/ano
   const badge=document.getElementById('ghMonthBadge');
-  if(badge) badge.textContent=`📅 ${MONTHS[currentMonth]} · ${currentYear}`;
+  if(badge) badge.textContent=`${MONTHS[currentMonth]} · ${currentYear}`;
   // Invest total
   const invs=DB.investments||[];
   let totalInvested=0;invs.forEach(i=>{const c=calcInvestment(i);totalInvested+=c.invested;});
@@ -1285,12 +1266,29 @@ function renderHome(){
   const curFat=ovFatura[5]||0;
   const healthRatio=curInc>0?Math.max(0,Math.min(100,((curInc-curExp)/curInc)*100)):0;
   const healthClass=healthRatio>=60?'great':healthRatio>=30?'good':healthRatio>=5?'warn':'bad';
-  const healthEmoji=healthRatio>=60?'🟢':healthRatio>=30?'🟡':healthRatio>=5?'🟠':'🔴';
-  const healthLabel=healthRatio>=60?'Saldo saudável':healthRatio>=30?'Atenção aos gastos':healthRatio>=5?'Gastos elevados':'No limite';
+    const healthLabel=healthRatio>=60?'Saldo saudável':healthRatio>=30?'Atenção aos gastos':healthRatio>=5?'Gastos elevados':'No limite';
   // Avg balance 6m
   const avgBal=(ovBalance.reduce((a,b)=>a+b,0)/6);
   // Best month
   const bestIdx=ovBalance.reduce((bi,v,i)=>v>ovBalance[bi]?i:bi,0);
+
+  // ── GRÁFICOS DE RECEITAS E GASTOS DO MÊS ──
+  html+=`<div class="home-charts-section">
+    <div class="hcs-card">
+      <div class="hcs-header">
+        <span class="hcs-title" style="color:var(--green)">↑ Receitas · ${MONTHS[currentMonth]}</span>
+        <span class="hcs-val" style="color:var(--green)">${fmt(t.income)}</span>
+      </div>
+      ${t.income>0?`<div class="hcs-chart-wrap"><canvas id="homeIncomeChart"></canvas></div>`:`<div class="hcs-empty">Nenhuma receita neste mês</div>`}
+    </div>
+    <div class="hcs-card" style="margin-top:10px">
+      <div class="hcs-header">
+        <span class="hcs-title" style="color:var(--red)">↓ Gastos · ${MONTHS[currentMonth]}</span>
+        <span class="hcs-val" style="color:var(--red)">${fmt(t.expense)}</span>
+      </div>
+      ${t.expense>0?`<div class="hcs-chart-wrap"><canvas id="homeExpenseChart"></canvas></div>`:`<div class="hcs-empty">Nenhum gasto neste mês</div>`}
+    </div>
+  </div>`;
 
   // ── RECEITAS PRIMEIRO ──────────────────
   // Recurring income section
@@ -1309,7 +1307,7 @@ function renderHome(){
     salaryRecs.forEach(r=>{
       const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);
       html+=`<div class="income-row" onclick="openEditRecurring('${r.recurringId}',${currentYear},${currentMonth})">
-        <div class="entry-icon" style="background:#e8f5e9">💼</div>
+        <div class="entry-icon" style="background:#e8f5e9;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.8" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
         <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Salário fixo${ri&&ri.day?` · dia ${ri.day}`:''}</div></div>
         <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div></div>
       </div>`;
@@ -1321,7 +1319,7 @@ function renderHome(){
       const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);
       const cat=ri?ri.cat:'outros';const emoji=RI_CATS_EMOJI[cat]||'💰';
       html+=`<div class="income-row" onclick="openEditRecurring('${r.recurringId}',${currentYear},${currentMonth})">
-        <div class="entry-icon" style="background:#fff8e1">${emoji}</div>
+        <div class="entry-icon" style="background:#fff8e1;color:#f57c00;font-size:.65rem;font-weight:800">RI</div>
         <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Renda recorrente${ri&&ri.day?` · dia ${ri.day}`:''}</div></div>
         <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div></div>
       </div>`;
@@ -1333,7 +1331,7 @@ function renderHome(){
   }
   // Se não tem nenhuma receita
   if(!salaryRecs.length&&!varRecs.length&&!manualIncs.length){
-    html+=`<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhuma receita em ${MONTHS[currentMonth]}</div></div>`;
+    html+=`<div class="empty"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/><path d="M15 9c0-1.7-1.3-3-3-3s-3 1.3-3 3 1.3 3 3 3"/></svg></div><div class="empty-text">Nenhuma receita em ${MONTHS[currentMonth]}</div></div>`;
   }
   html+=`</div>`;
   // Botões de ação renda
@@ -1348,7 +1346,7 @@ function renderHome(){
   const ck=Object.keys(cm);
 
   html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title" style="color:var(--red);font-size:.68rem;">↓ GASTOS</div><div class="sec-right" style="color:var(--red)">${exps.length} · ${fmt(exps.reduce((s,e)=>s+e.value,0))}</div></div><div class="gcard">`;
-  if(!exps.length)html+=`<div class="empty"><div class="empty-icon">💸</div><div class="empty-text">Nenhum gasto em ${MONTHS[currentMonth]}</div></div>`;
+  if(!exps.length)html+=`<div class="empty"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="empty-text">Nenhum gasto em ${MONTHS[currentMonth]}</div></div>`;
   else exps.forEach(e=>{html+=eRow(e);});
   html+=`</div></div>`;
 
@@ -1356,13 +1354,13 @@ function renderHome(){
   if(ck.length){html+=`<div class="chart-card"><div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:11px;">Gastos por Categoria · ${MONTHS[currentMonth]}</div><div class="chart-wrap"><canvas id="catChart"></canvas></div><div class="chart-legend" id="chartLegend"></div></div>`;}
 
   // ── META ───────────────────────────────
-  if(DB.goal){const sv=Math.max(0,t.balance);const pct=Math.min(100,(sv/DB.goal)*100);html+=`<div class="goal-card"><div class="goal-top"><div style="font-size:.82rem;font-weight:600">🎯 Meta de Economia</div><div style="font-size:.78rem;font-weight:700;color:var(--accent)">${pct.toFixed(0)}%</div></div><div class="goal-track"><div class="goal-fill${sv>=DB.goal?' over':''}" style="width:${pct}%"></div></div><div style="font-size:.68rem;color:var(--muted)">${fmt(sv)} guardado de ${fmt(DB.goal)}${sv>=DB.goal?' · 🎉 Parabéns!':''}</div></div>`;}
+  if(DB.goal){const sv=Math.max(0,t.balance);const pct=Math.min(100,(sv/DB.goal)*100);html+=`<div class="goal-card"><div class="goal-top"><div style="font-size:.82rem;font-weight:600">Meta de Economia</div><div style="font-size:.78rem;font-weight:700;color:var(--accent)">${pct.toFixed(0)}%</div></div><div class="goal-track"><div class="goal-fill${sv>=DB.goal?' over':''}" style="width:${pct}%"></div></div><div style="font-size:.68rem;color:var(--muted)">${fmt(sv)} guardado de ${fmt(DB.goal)}${sv>=DB.goal?' · 🎉 Parabéns!':''}</div></div>`;}
 
   // ── VISÃO GERAL 6 MESES (ao final) ────
   const cwbCards=DB.cards.filter(c=>cardBill(c.id,currentYear,currentMonth)>0);
   html+=`<div class="overview-card" id="overviewCard">
     <div class="overview-header">
-      <span class="overview-title">📊 Visão Geral · 6 meses</span>
+      <span class="overview-title">Visão Geral · 6 meses</span>
       <div class="overview-tabs">
         <button class="ovtab${overviewMode==='bar'?' active':''}" onclick="setOverviewMode('bar')">Barras</button>
         <button class="ovtab${overviewMode==='line'?' active':''}" onclick="setOverviewMode('line')">Linha</button>
@@ -1382,7 +1380,7 @@ function renderHome(){
     </div>
     <div class="health-bar-wrap">
       <div class="health-bar-label">
-        <div class="health-bar-text"><span class="health-emoji">${healthEmoji}</span> ${healthLabel}</div>
+        <div class="health-bar-text">${healthLabel}</div>
         <div class="health-bar-pct" style="color:${healthClass==='great'?'#00c853':healthClass==='good'?'var(--accent)':healthClass==='warn'?'var(--orange)':'var(--red)'}">${healthRatio.toFixed(0)}% livre</div>
       </div>
       <div class="health-bar-track"><div class="health-bar-fill ${healthClass}" style="width:${healthRatio}%"></div></div>
@@ -1391,7 +1389,7 @@ function renderHome(){
   if(cwbCards.length){
     const totalB=cwbCards.reduce((s,c)=>s+cardBill(c.id,currentYear,currentMonth),0);
     html+=`<div class="card-bill-breakdown">
-      <div class="cbb-title">💳 Faturas de ${MONTHS[currentMonth]}</div>`;
+      <div class="cbb-title">Faturas de ${MONTHS[currentMonth]}</div>`;
     cwbCards.forEach(c=>{
       const bill=cardBill(c.id,currentYear,currentMonth);
       const inv=getInvoiceStatus(c.id,currentYear,currentMonth);
@@ -1419,8 +1417,11 @@ function renderHome(){
     document.getElementById('chartLegend').innerHTML=ck.map((k,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>${getCat(k).label}: ${fmt(cm[k])}</div>`).join('');
   }
 
-  // Draw overview chart — defer so canvas is in DOM
-  requestAnimationFrame(()=>drawOverviewChart(ovLabels, ovIncome, ovExpense, ovBalance, ovFatura));
+  // Draw all charts after DOM is ready
+  setTimeout(()=>{
+    drawOverviewChart(ovLabels, ovIncome, ovExpense, ovBalance, ovFatura);
+    drawHomeCharts(incs, exps, t);
+  }, 30);
 
   // Apply privacy if active
   if(privacyMode) applyPrivacyBlur();
@@ -1466,6 +1467,30 @@ function drawOverviewChart(labels, income, expense, balance, fatura){
     ]},options:{...baseOpts,scales:{...baseOpts.scales,x:{...baseOpts.scales.x,stacked:false}}}});
   }
 }
+function drawHomeCharts(incEntries, expEntries, t){
+  // Income chart - bar of income by source
+  if(homeIncomeChart){homeIncomeChart.destroy();homeIncomeChart=null;}
+  if(homeExpenseChart){homeExpenseChart.destroy();homeExpenseChart=null;}
+  const icCtx=document.getElementById('homeIncomeChart');
+  if(icCtx && t.income>0){
+    // Group income entries
+    const incGroups={};
+    incEntries.forEach(e=>{const lbl=e.desc.length>14?e.desc.slice(0,14)+'…':e.desc;incGroups[lbl]=(incGroups[lbl]||0)+e.value;});
+    const incColors=['#00a86b','#26c6da','#00897b','#43a047','#00bcd4','#4caf50','#009688'];
+    const incLabels=Object.keys(incGroups);
+    const incData=Object.values(incGroups);
+    homeIncomeChart=new Chart(icCtx,{type:'bar',data:{labels:incLabels,datasets:[{data:incData,backgroundColor:incColors.slice(0,incLabels.length),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${fmt(c.raw)}`}}},scales:{x:{ticks:{color:'#8892a4',font:{size:8},maxRotation:30},grid:{display:false},border:{display:false}},y:{ticks:{color:'#8892a4',font:{size:8},callback:v=>'R$'+Math.abs(v/1000>1?v/1000+'k':v.toFixed(0)),maxTicksLimit:4},grid:{color:'rgba(0,0,0,.05)'},border:{dash:[3,3],display:false}}}}});
+  }
+  const ecCtx=document.getElementById('homeExpenseChart');
+  if(ecCtx && t.expense>0){
+    const expGroups={};
+    expEntries.forEach(e=>{const lbl=e.desc.length>14?e.desc.slice(0,14)+'…':e.desc;expGroups[lbl]=(expGroups[lbl]||0)+e.value;});
+    const expColors=['#e53935','#ef5350','#f44336','#e57373','#ff7043','#ff5722','#f4511e'];
+    const expLabels=Object.keys(expGroups);
+    const expData=Object.values(expGroups);
+    homeExpenseChart=new Chart(ecCtx,{type:'bar',data:{labels:expLabels,datasets:[{data:expData,backgroundColor:expColors.slice(0,expLabels.length),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${fmt(c.raw)}`}}},scales:{x:{ticks:{color:'#8892a4',font:{size:8},maxRotation:30},grid:{display:false},border:{display:false}},y:{ticks:{color:'#8892a4',font:{size:8},callback:v=>'R$'+Math.abs(v/1000>1?v/1000+'k':v.toFixed(0)),maxTicksLimit:4},grid:{color:'rgba(0,0,0,.05)'},border:{dash:[3,3],display:false}}}}});
+  }
+}
 function setOverviewMode(mode){
   overviewMode=mode;
   renderHome();
@@ -1473,11 +1498,11 @@ function setOverviewMode(mode){
 
 function eRow(e){
   const cat=getCat(e.cat);const status=getStatus(e.id);const card=e.cardId?getCard(e.cardId):null;
-  const sl={pago:'✓ Pago',aberto:'· Em aberto','nao-pago':'✗ Não pago'};
+  const sl={pago:'Pago',aberto:'Em aberto','nao-pago':'✗ Não pago'};
   let dots='';if(e.isInst){dots='<div class="inst-dots">';for(let i=1;i<=Math.min(e.totalParcels,24);i++)dots+=`<div class="id-dot${i<=e.parcelNum?' done':''}"></div>`;dots+='</div>';}
   return`<div class="entry-row" onclick="openDetail('${e.id}')">
-    <div class="entry-icon" style="background:${cat.bg}">${cat.emoji}</div>
-    <div class="entry-info"><div class="entry-name">${e.desc}</div><div class="entry-sub">${cat.label}${e.isInst?`<span class="ibadge">${e.parcelNum}/${e.totalParcels}</span>`:''}${card?`<span class="cbadge">💳 ${card.name}</span>`:''}</div>${dots}</div>
+    <div class="entry-icon" style="background:${cat.bg};color:${cat.color};font-size:.72rem;font-weight:800;letter-spacing:0">${cat.label.slice(0,2).toUpperCase()}</div>
+    <div class="entry-info"><div class="entry-name">${e.desc}</div><div class="entry-sub">${cat.label}${e.isInst?`<span class="ibadge">${e.parcelNum}/${e.totalParcels}</span>`:''}${card?`<span class="cbadge">${card.name}</span>`:''}</div>${dots}</div>
     <div class="entry-right"><div class="entry-amount ${e.type}">${e.type==='exp'?'−':'+'}${fmt(e.value)}</div><div class="entry-stat ${status}">${sl[status]}</div></div>
   </div>`;
 }
@@ -1500,12 +1525,12 @@ function renderYear(){
   if(active.length){
     html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">Parcelamentos ${currentYear}</div></div><div class="gcard">`;
     active.forEach(i=>{const s=toAbs(i.startYear,i.startMonth);const e=s+i.totalParcels-1;const rem=Math.max(0,e-toAbs(CY,NOW.getMonth())+1);const card=i.cardId?getCard(i.cardId):null;const eY=Math.floor(e/12),eM=e%12;
-      html+=`<div class="entry-row"><div class="entry-icon" style="background:${getCat(i.cat).bg}">${getCat(i.cat).emoji}</div><div class="entry-info"><div class="entry-name">${i.desc}</div><div class="entry-sub">${i.totalParcels}x de ${fmt(i.parcelValue)} · Total ${fmt(i.totalValue)}${card?` · 💳 ${card.name}`:''}</div></div><div class="entry-right"><div class="entry-amount exp">${fmt(i.parcelValue)}/mês</div><div class="entry-stat aberto">${rem} restam</div></div><button style="background:none;border:none;color:var(--muted);font-size:.8rem;padding:4px;cursor:pointer;" onclick="event.stopPropagation();delInstallment('${i.id}')">🗑</button></div>`;});
+      html+=`<div class="entry-row"><div class="entry-icon" style="background:${getCat(i.cat).bg};color:${getCat(i.cat).color};font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center">${getCat(i.cat).label.slice(0,2).toUpperCase()}</div><div class="entry-info"><div class="entry-name">${i.desc}</div><div class="entry-sub">${i.totalParcels}x de ${fmt(i.parcelValue)} · Total ${fmt(i.totalValue)}${card?` · ${card.name}`:''}</div></div><div class="entry-right"><div class="entry-amount exp">${fmt(i.parcelValue)}/mês</div><div class="entry-stat aberto">${rem} restam</div></div><button style="background:none;border:none;color:var(--muted);font-size:.8rem;padding:4px;cursor:pointer;" onclick="event.stopPropagation();delInstallment('${i.id}')">🗑</button></div>`;});
     html+=`</div></div>`;
   }
   document.getElementById('yearContent').innerHTML=html;
   const ctx=document.getElementById('yearChart');
-  if(ctx){new Chart(ctx,{type:'bar',data:{labels:MONTHS.map(m=>m.slice(0,3)),datasets:[{label:'Receitas',data:MONTHS.map((_,i)=>totalsForYearMonth(currentYear,i).income),backgroundColor:'rgba(77,255,176,.55)',borderRadius:5},{label:'Gastos',data:MONTHS.map((_,i)=>totalsForYearMonth(currentYear,i).expense),backgroundColor:'rgba(255,112,112,.55)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(255,255,255,.6)',font:{size:10},boxWidth:9,boxHeight:9}}},scales:{x:{ticks:{color:'rgba(255,255,255,.5)',font:{size:9}},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'rgba(255,255,255,.5)',font:{size:9},callback:v=>'R$'+v.toLocaleString('pt-BR')},grid:{color:'rgba(255,255,255,.06)'},border:{dash:[3,3]}}}}});}
+  if(ctx){new Chart(ctx,{type:'bar',data:{labels:MONTHS.map(m=>m.slice(0,3)),datasets:[{label:'Receitas',data:MONTHS.map((_,i)=>totalsForYearMonth(currentYear,i).income),backgroundColor:'rgba(0,168,107,.45)',borderColor:'rgba(0,168,107,.8)',borderWidth:1,borderRadius:5},{label:'Gastos',data:MONTHS.map((_,i)=>totalsForYearMonth(currentYear,i).expense),backgroundColor:'rgba(229,57,53,.35)',borderColor:'rgba(229,57,53,.7)',borderWidth:1,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7a8599',font:{size:10},boxWidth:9,boxHeight:9}}},scales:{x:{ticks:{color:'#7a8599',font:{size:9}},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{color:'#7a8599',font:{size:9},callback:v=>'R$'+v.toLocaleString('pt-BR')},grid:{color:'rgba(0,0,0,.05)'},border:{dash:[3,3]}}}}});}
 }
 
 // ════════════════════════════════════════
@@ -1538,7 +1563,7 @@ function renderCards(){
     </div>`;
   }
 
-  if(!DB.cards.length){html+=`<div class="sec"><div class="gcard"><div class="empty"><div class="empty-icon">💳</div><div class="empty-text">Toque + para adicionar seu primeiro cartão</div></div></div></div>`;}
+  if(!DB.cards.length){html+=`<div class="sec"><div class="gcard"><div class="empty"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div class="empty-text">Toque + para adicionar seu primeiro cartão</div></div></div></div>`;}
   else{
     DB.cards.forEach(c=>{
       const bill=cardBill(c.id,currentYear,currentMonth);
@@ -1557,10 +1582,10 @@ function renderCards(){
           <div class="cc-top"><div><div class="cc-name">${c.name}</div><div class="cc-network">${c.network}${c.closeDay?` · Fecha dia ${c.closeDay}`:''}</div></div><button class="cc-edit-btn" onclick="openEditCard('${c.id}')">✏️ Editar</button></div>
           <div class="cc-bill-row">
             <div class="cc-bill-item"><div class="cc-bill-lbl">Fatura ${MONTHS[currentMonth]}</div><div class="cc-bill-val">${fmt(bill)}</div></div>
-            <div class="cc-bill-item"><div class="cc-bill-lbl">Status</div><div style="margin-top:5px"><button style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:7px;padding:4px 9px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;" onclick="openInvoiceModal('${c.id}',${currentYear},${currentMonth})">${inv==='pago_total'||inv==='pago'?'✅ Paga':inv==='pago_parcial'?'💛 Parcial':inv==='pago_minimo'?'💛 Mín.':inv==='venceu'?'🔴 Vencida':closed?'🔒 Fechada':'· Em aberto'}</button></div></div>
+            <div class="cc-bill-item"><div class="cc-bill-lbl">Status</div><div style="margin-top:5px"><button style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:7px;padding:4px 9px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;" onclick="openInvoiceModal('${c.id}',${currentYear},${currentMonth})">${inv==='pago_total'||inv==='pago'?'Paga':inv==='pago_parcial'?'Parcial':inv==='pago_minimo'?'Mín.':inv==='venceu'?'Vencida':closed?'Fechada':'Em aberto'}</button></div></div>
           </div>
-          ${limit>0?`<div class="cc-limit-area"><div class="cc-limit-row"><div class="cc-limit-lbl">${isCardOver?'⚠️ Limite ultrapassado!':pct.toFixed(0)+'% utilizado'}</div><div class="cc-limit-pct">${fmt(consumed)} / ${fmt(limit)}</div></div><div class="cc-limit-track"><div class="cc-limit-fill ${pc}" style="width:${Math.min(100,pct)}%"></div></div></div>`:''}
-          <div class="cc-bottom"><div class="cc-due">📅 Vence dia <strong>${c.dueDay||'—'}</strong></div>${limit>0?`<div class="cc-avail${isCardOver?' neg':''}">${isCardOver?'⚠️ −'+fmt(Math.abs(avail)):'Disponível: '+fmt(avail)}</div>`:''}</div>
+          ${limit>0?`<div class="cc-limit-area"><div class="cc-limit-row"><div class="cc-limit-lbl">${isCardOver?'Limite ultrapassado!':pct.toFixed(0)+'% utilizado'}</div><div class="cc-limit-pct">${fmt(consumed)} / ${fmt(limit)}</div></div><div class="cc-limit-track"><div class="cc-limit-fill ${pc}" style="width:${Math.min(100,pct)}%"></div></div></div>`:''}
+          <div class="cc-bottom"><div class="cc-due">Vence dia <strong>${c.dueDay||'—'}</strong></div>${limit>0?`<div class="cc-avail${isCardOver?' neg':''}">${isCardOver?'-'+fmt(Math.abs(avail)):'Disponível: '+fmt(avail)}</div>`:''}</div>
         </div>
         <div class="cc-entries">`;
       if(!cardEntries.length){html+=`<div style="padding:11px 14px;font-size:.72rem;color:var(--muted);text-align:center;">Nenhuma compra em ${MONTHS[currentMonth]}</div>`;}
@@ -1597,12 +1622,12 @@ function renderInvest(){
   invs.forEach(i=>{if(!typeGroups[i.type])typeGroups[i.type]=[];typeGroups[i.type].push(i);});
 
   if(!invs.length){
-    html+=`<div class="sec"><div class="gcard"><div class="empty"><div class="empty-icon">📈</div><div class="empty-text">Toque + para adicionar seu primeiro investimento</div></div></div></div>`;
+    html+=`<div class="sec"><div class="gcard"><div class="empty"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="empty-text">Toque + para adicionar seu primeiro investimento</div></div></div></div>`;
   } else {
     Object.entries(typeGroups).forEach(([type,items])=>{
       const ti=INVEST_TYPES[type]||{emoji:'📦',color:'#546e7a',bg:'#eceff1'};
       const groupTotal=items.reduce((s,i)=>{const c=calcInvestment(i);return s+c.current;},0);
-      html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${ti.emoji} ${type}</div><div class="sec-right">${fmt(groupTotal)}</div></div><div class="gcard">`;
+      html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${type}</div><div class="sec-right">${fmt(groupTotal)}</div></div><div class="gcard">`;
       items.forEach(i=>{
         const c=calcInvestment(i);
         const ret=c.current-c.invested;
@@ -1616,7 +1641,7 @@ function renderInvest(){
           if(i.date)sub+=` · desde ${new Date(i.date+'T00:00:00').toLocaleDateString('pt-BR')}`;
         }
         html+=`<div class="invest-row" onclick="openEditInvest('${i.id}')">
-          <div class="invest-icon" style="background:${ti.bg}">${ti.emoji}</div>
+          <div class="invest-icon" style="background:${ti.bg};color:${ti.color};font-size:.65rem;font-weight:800">${type.slice(0,2).toUpperCase()}</div>
           <div class="invest-info"><div class="invest-name">${i.desc}</div><div class="invest-sub">${sub}</div></div>
           <div class="invest-right"><div class="invest-val">${fmt(c.current)}</div><div class="invest-ret ${ret>=0?'pos':'neg'}">${ret>=0?'+':''}${retPct.toFixed(2)}%</div></div>
         </div>`;
@@ -1636,36 +1661,36 @@ function renderProfile(){
   const av=p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.name?p.name.charAt(0).toUpperCase():'?');
   const invTotal=(DB.investments||[]).reduce((s,i)=>{const c=calcInvestment(i);return s+c.current;},0);
   let html=`<div class="profile-hdr">
-    <div class="profile-avatar-big" onclick="openEditProfile()">${av}<div class="cam-overlay">📷 Editar</div></div>
+    <div class="profile-avatar-big" onclick="openEditProfile()">${av}<div class="cam-overlay">Editar</div></div>
     <div class="profile-name-big">${p.name||'Usuário'}${p.lastName?' '+p.lastName:''}</div>
     <div class="profile-obj">${p.objective||'—'}</div>
   </div>
   <div class="profile-sec-title">Dados Pessoais</div>
   <div class="profile-card">
-    <div class="profile-row" onclick="openEditProfile()"><div class="profile-row-icon" style="background:#e0f2f1">👤</div><div class="profile-row-info"><div class="profile-row-lbl">Nome completo</div><div class="profile-row-val">${p.name||'—'}${p.lastName?' '+p.lastName:''}</div></div><div class="profile-chev">›</div></div>
+    <div class="profile-row" onclick="openEditProfile()"><div class="profile-row-icon" style="background:#e0f2f1;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#00897b" stroke-width="1.8" width="18" height="18"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl">Nome completo</div><div class="profile-row-val">${p.name||'—'}${p.lastName?' '+p.lastName:''}</div></div><div class="profile-chev">›</div></div>
     <div class="profile-row" onclick="openEditProfile()"><div class="profile-row-icon" style="background:#e8eaf6">🪪</div><div class="profile-row-info"><div class="profile-row-lbl">CPF</div><div class="profile-row-val">${p.cpf||'Não informado'}</div></div><div class="profile-chev">›</div></div>
-    <div class="profile-row" onclick="openEditProfile()"><div class="profile-row-icon" style="background:#e8f5e9">📧</div><div class="profile-row-info"><div class="profile-row-lbl">E-mail</div><div class="profile-row-val">${p.email||'Não informado'}</div></div><div class="profile-chev">›</div></div>
-    <div class="profile-row" onclick="openEditProfile()"><div class="profile-row-icon" style="background:#e1f5fe">📱</div><div class="profile-row-info"><div class="profile-row-lbl">Telefone</div><div class="profile-row-val">${p.phone||'Não informado'}</div></div><div class="profile-chev">›</div></div>
+    <div class="profile-row" onclick="openEditProfile()"><div class="profile-row-icon" style="background:#e8f5e9;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.8" width="18" height="18"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl">E-mail</div><div class="profile-row-val">${p.email||'Não informado'}</div></div><div class="profile-chev">›</div></div>
+    <div class="profile-row" onclick="openEditProfile()"><div class="profile-row-icon" style="background:#e1f5fe;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#0277bd" stroke-width="1.8" width="18" height="18"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="2.5" stroke-linecap="round"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl">Telefone</div><div class="profile-row-val">${p.phone||'Não informado'}</div></div><div class="profile-chev">›</div></div>
   </div>
   <div class="profile-sec-title">Resumo Financeiro ${currentYear}</div>
   <div class="profile-card">
     <div class="profile-row"><div class="profile-row-icon" style="background:#e8f5e9">↑</div><div class="profile-row-info"><div class="profile-row-lbl">Total Recebido</div><div class="profile-row-val" style="color:var(--green)">${fmt(yt.income)}</div></div></div>
     <div class="profile-row"><div class="profile-row-icon" style="background:#ffebee">↓</div><div class="profile-row-info"><div class="profile-row-lbl">Total Gasto</div><div class="profile-row-val" style="color:var(--red)">${fmt(yt.expense)}</div></div></div>
-    <div class="profile-row"><div class="profile-row-icon" style="background:#e0f2f1">💰</div><div class="profile-row-info"><div class="profile-row-lbl">Saldo do Ano</div><div class="profile-row-val" style="color:var(--accent)">${yt.balance<0?'− ':''}${fmt(yt.balance)}</div></div></div>
-    <div class="profile-row"><div class="profile-row-icon" style="background:#e8f5e9">📈</div><div class="profile-row-info"><div class="profile-row-lbl">Total Investido</div><div class="profile-row-val" style="color:var(--green)">${fmt(invTotal)}</div></div></div>
+    <div class="profile-row"><div class="profile-row-icon" style="background:#e0f2f1;color:#00897b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl">Saldo do Ano</div><div class="profile-row-val" style="color:var(--accent)">${yt.balance<0?'− ':''}${fmt(yt.balance)}</div></div></div>
+    <div class="profile-row"><div class="profile-row-icon" style="background:#e8f5e9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl">Total Investido</div><div class="profile-row-val" style="color:var(--green)">${fmt(invTotal)}</div></div></div>
   </div>
   <div class="profile-sec-title">Receitas Recorrentes</div>
   <div class="profile-card">`;
   const ri=DB.recurringIncome||[];
-  if(ri.length){ri.forEach(r=>{html+=`<div class="profile-row" onclick="openEditIncomeById('${r.id}')"><div class="profile-row-icon" style="background:#e8f5e9">💼</div><div class="profile-row-info"><div class="profile-row-lbl">${r.desc}</div><div class="profile-row-val">${fmt(r.value)}/mês</div></div><div class="profile-chev">›</div></div>`;});}
+  if(ri.length){ri.forEach(r=>{html+=`<div class="profile-row" onclick="openEditIncomeById('${r.id}')"><div class="profile-row-icon" style="background:#e8f5e9;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.8" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl">${r.desc}</div><div class="profile-row-val">${fmt(r.value)}/mês</div></div><div class="profile-chev">›</div></div>`;});}
   else{html+=`<div class="profile-row" onclick="openAddIncome()"><div class="profile-row-icon" style="background:#e8f5e9">+</div><div class="profile-row-info"><div class="profile-row-lbl">Nenhuma receita recorrente</div><div class="profile-row-val">Toque para adicionar</div></div><div class="profile-chev">›</div></div>`;}
   html+=`<div class="profile-row" onclick="openAddIncome()"><div class="profile-row-icon" style="background:#e0f2f1">+</div><div class="profile-row-info"><div class="profile-row-lbl">Adicionar nova receita recorrente</div></div><div class="profile-chev">›</div></div>
   </div>
   <div class="profile-sec-title">Ferramentas</div>
   <div class="profile-card">
-    <div class="profile-row" onclick="openGoal()"><div class="profile-row-icon" style="background:#fff3e0">🎯</div><div class="profile-row-info"><div class="profile-row-lbl">Meta mensal</div><div class="profile-row-val">${DB.goal?fmt(DB.goal):'Não definida'}</div></div><div class="profile-chev">›</div></div>
-    <div class="profile-row" onclick="exportPDF()"><div class="profile-row-icon" style="background:#e8eaf6">📄</div><div class="profile-row-info"><div class="profile-row-lbl">Exportar PDF</div><div class="profile-row-val">Relatório mensal ou anual</div></div><div class="profile-chev">›</div></div>
-    <div class="profile-row" onclick="clearAll()"><div class="profile-row-icon" style="background:#ffebee">🗑</div><div class="profile-row-info"><div class="profile-row-lbl" style="color:var(--red)">Apagar todos os dados</div></div><div class="profile-chev">›</div></div>
+    <div class="profile-row" onclick="openGoal()"><div class="profile-row-icon" style="background:#fff3e0;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#f57c00" stroke-width="1.8" width="18" height="18"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="#f57c00"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl">Meta mensal</div><div class="profile-row-val">${DB.goal?fmt(DB.goal):'Não definida'}</div></div><div class="profile-chev">›</div></div>
+    <div class="profile-row" onclick="exportPDF()"><div class="profile-row-icon" style="background:#e8eaf6;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#3949ab" stroke-width="1.8" width="18" height="18"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl">Exportar PDF</div><div class="profile-row-val">Relatório mensal ou anual</div></div><div class="profile-chev">›</div></div>
+    <div class="profile-row" onclick="clearAll()"><div class="profile-row-icon" style="background:#ffebee;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="1.8" width="18" height="18"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></div><div class="profile-row-info"><div class="profile-row-lbl" style="color:var(--red)">Apagar todos os dados</div></div><div class="profile-chev">›</div></div>
   </div>`;
   document.getElementById('profileContent').innerHTML=html;
 }
@@ -1703,15 +1728,15 @@ function switchTab(tab){
 function renderFaturas(){
   document.getElementById('faturasYearLbl').textContent=currentYear;
   if(!DB.cards.length){
-    document.getElementById('faturasContent').innerHTML=`<div class="sec"><div class="gcard"><div class="empty"><div class="empty-icon">🧾</div><div class="empty-text">Adicione cartões para ver as faturas</div></div></div></div>`;
+    document.getElementById('faturasContent').innerHTML=`<div class="sec"><div class="gcard"><div class="empty"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div><div class="empty-text">Adicione cartões para ver as faturas</div></div></div></div>`;
     return;
   }
   const statusInfo={
-    pago_total:{label:'✅ Pago Total',color:'#2e7d32',bg:'#dcfce7'},
-    pago:{label:'✅ Pago',color:'#2e7d32',bg:'#dcfce7'},
-    pago_parcial:{label:'💛 Pago Parcial',color:'#92400e',bg:'#fef3c7'},
-    pago_minimo:{label:'💛 Mín. Pago',color:'#92400e',bg:'#fef3c7'},
-    venceu:{label:'🔴 Vencida',color:'#991b1b',bg:'#fee2e2'},
+    pago_total:{label:'Pago Total',color:'#2e7d32',bg:'#dcfce7'},
+    pago:{label:'Pago',color:'#2e7d32',bg:'#dcfce7'},
+    pago_parcial:{label:'Pago Parcial',color:'#92400e',bg:'#fef3c7'},
+    pago_minimo:{label:'Mín. Pago',color:'#92400e',bg:'#fef3c7'},
+    venceu:{label:'Vencida',color:'#991b1b',bg:'#fee2e2'},
     aberto:{label:'· Em Aberto',color:'#6b7280',bg:'#f3f4f6'},
   };
 
@@ -1738,7 +1763,7 @@ function renderFaturas(){
   for(let m=11;m>=0;m--){
     const monthCards=DB.cards.filter(c=>cardBill(c.id,currentYear,m)>0);
     if(!monthCards.length) continue;
-    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">📅 ${MONTHS[m]} ${currentYear}</div></div><div class="gcard">`;
+    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">${MONTHS[m]} ${currentYear}</div></div><div class="gcard">`;
     monthCards.forEach(c=>{
       const bill=cardBill(c.id,currentYear,m);
       const st=getInvoiceStatus(c.id,currentYear,m);
@@ -1764,7 +1789,7 @@ function renderFaturas(){
   }
 
   if(html===`<div style="padding:0 18px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;"><div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Em Aberto</div><div style="font-size:.82rem;font-weight:800;color:var(--orange)">${fmt(totalAberto)}</div></div><div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Pagas</div><div style="font-size:.82rem;font-weight:800;color:var(--green)">${fmt(totalPago)}</div></div><div style="background:var(--surface);border-radius:13px;padding:10px;border:1.5px solid var(--border);text-align:center"><div style="font-size:.56rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Vencidas</div><div style="font-size:.82rem;font-weight:800;color:var(--red)">${fmt(totalVenceu)}</div></div></div>`){
-    html+=`<div class="empty" style="padding:32px"><div class="empty-icon">🧾</div><div class="empty-text">Nenhuma fatura em ${currentYear}</div></div>`;
+    html+=`<div class="empty" style="padding:32px"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div><div class="empty-text">Nenhuma fatura em ${currentYear}</div></div>`;
   }
 
   document.getElementById('faturasContent').innerHTML=html;
@@ -1780,16 +1805,16 @@ function openDetail(entryId){
   const e=allForYearMonth(currentYear,currentMonth).find(x=>x.id===entryId);
   if(!e)return;
   const cat=getCat(e.cat);const status=getStatus(e.id);const card=e.cardId?getCard(e.cardId):null;
-  const so=[{k:'pago',l:'✓ Pago',c:'#2e7d32'},{k:'aberto',l:'· Em aberto',c:'#f57c00'},{k:'nao-pago',l:'✗ Não pago',c:'#c62828'}];
+  const so=[{k:'pago',l:'Pago',c:'#2e7d32'},{k:'aberto',l:'Em aberto',c:'#f57c00'},{k:'nao-pago',l:'Não pago',c:'#c62828'}];
   let html=`<div style="text-align:center;margin-bottom:18px">
-    <div style="width:56px;height:56px;border-radius:16px;background:${cat.bg};display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 9px;">${cat.emoji}</div>
+    <div style="width:56px;height:56px;border-radius:16px;background:${cat.bg};display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;margin:0 auto 9px;color:${cat.color}">${cat.label.slice(0,2).toUpperCase()}</div>
     <div style="font-size:1rem;font-weight:700;color:var(--text)">${e.desc}</div>
     <div style="font-size:1.6rem;font-weight:800;color:${e.type==='exp'?'var(--red)':'var(--green)'};margin-top:3px;letter-spacing:-.5px">${e.type==='exp'?'−':'+'}${fmt(e.value)}</div>
     ${e.isInst?`<div style="font-size:.72rem;color:var(--muted);margin-top:2px">Parcela ${e.parcelNum}/${e.totalParcels} · Total: ${fmt(e.totalValue||0)}</div>`:''}
   </div>
   <div class="gcard" style="margin-bottom:13px">
     <div class="settings-row"><div class="sr-label">Categoria</div><div class="sr-val">${cat.label}</div></div>
-    ${card?`<div class="settings-row"><div class="sr-label">Cartão</div><div class="sr-val">💳 ${card.name}</div></div>`:''}
+    ${card?`<div class="settings-row"><div class="sr-label">Cartão</div><div class="sr-val">${card.name}</div></div>`:''}
     <div class="settings-row"><div class="sr-label">Mês / Ano</div><div class="sr-val">${MONTHS[e.month]} ${e.year}</div></div>
   </div>
   <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">Status</div>
@@ -1797,7 +1822,7 @@ function openDetail(entryId){
     ${so.map(s=>`<div class="settings-row" onclick="applyStatus('${e.id}','${s.k}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:${s.c}"></div><div class="sr-label">${s.l}</div></div>${status===s.k?`<div style="color:var(--accent)">✓</div>`:''}</div>`).join('')}
   </div>`;
   if(!e.isInst){
-    html+=`<button class="btn-danger" onclick="confirmDelete('${e.id}')">🗑 Excluir Lançamento</button>`;
+    html+=`<button class="btn-danger" onclick="confirmDelete('${e.id}')">Excluir Lançamento</button>`;
   } else {
     html+=`<div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">Editar Parcelamento</div>
     <div class="gcard" style="margin-bottom:8px">
@@ -1838,7 +1863,7 @@ function editInstQty(instId){
 //  ADD ENTRY
 // ════════════════════════════════════════
 function buildCatGrid(sel){
-  return CATS.map(c=>`<button class="cat-btn${sel===c.id?' selected':''}" onclick="selectCat('${c.id}')"><div class="cat-btn-emoji">${c.emoji}</div><div class="cat-btn-label">${c.label}</div></button>`).join('');
+  return CATS.map(c=>`<button class="cat-btn${sel===c.id?' selected':''}" onclick="selectCat('${c.id}')"><div class="cat-btn-emoji" style="font-size:.7rem;font-weight:800;color:${c.color}">${c.label.slice(0,3)}</div><div class="cat-btn-label">${c.label}</div></button>`).join('');
 }
 function selectCat(id){selectedCat=id;document.getElementById('catGrid').innerHTML=buildCatGrid(id);}
 function updateInstPreview(){
@@ -1866,7 +1891,7 @@ function updateAddModalLabel(){
   const m=parseInt(document.getElementById('fEntryMonth')?.value??currentMonth);
   const y=parseInt(document.getElementById('fEntryYear')?.value??currentYear);
   const lbl=document.getElementById('addModalMonthLabel');
-  if(lbl) lbl.textContent=`📅 ${MONTHS[m]} · ${y}`;
+  if(lbl) lbl.textContent=`${MONTHS[m]} · ${y}`;
 }
 function closeAdd(){document.getElementById('addModal').classList.remove('open');resetForm();}
 function resetForm(){
@@ -1891,7 +1916,7 @@ let selectedExtraCat='freelance';
 let currentIncType='extra'; // 'extra' | 'salary'
 
 function buildExtraCatGrid(sel){
-  return EXTRA_CATS.map(c=>`<button class="extra-cat-btn${sel===c.id?' selected':''}" onclick="selectExtraCat('${c.id}')"><div class="extra-cat-btn-emoji">${c.emoji}</div><div class="extra-cat-btn-label">${c.label}</div></button>`).join('');
+  return EXTRA_CATS.map(c=>`<button class="extra-cat-btn${sel===c.id?' selected':''}" onclick="selectExtraCat('${c.id}')"><div class="extra-cat-btn-emoji" style="font-size:.65rem;font-weight:800;color:${c.color}">${c.label.slice(0,3)}</div><div class="extra-cat-btn-label">${c.label}</div></button>`).join('');
 }
 function selectExtraCat(id){selectedExtraCat=id;document.getElementById('extraCatGrid').innerHTML=buildExtraCatGrid(id);}
 
@@ -1986,7 +2011,7 @@ let currentRiType='salario';
 let selectedRiCat='freelance';
 
 function buildRiCatGrid(sel){
-  return RI_CATS.filter(c=>c.id!=='salario').map(c=>`<button class="ri-cat-btn${sel===c.id?' selected':''}" onclick="selectRiCat('${c.id}')"><div class="ri-cat-btn-emoji">${c.emoji}</div><div class="ri-cat-btn-label">${c.label}</div></button>`).join('');
+  return RI_CATS.filter(c=>c.id!=='salario').map(c=>`<button class="ri-cat-btn${sel===c.id?' selected':''}" onclick="selectRiCat('${c.id}')"><div class="ri-cat-btn-emoji" style="font-size:.65rem;font-weight:800;color:${c.color}">${c.label.slice(0,3)}</div><div class="ri-cat-btn-label">${c.label}</div></button>`).join('');
 }
 function selectRiCat(id){selectedRiCat=id;document.getElementById('riCatValue').value=id;document.getElementById('riCatGrid').innerHTML=buildRiCatGrid(id);}
 function setRiType(t){
@@ -2122,9 +2147,9 @@ function openInvoiceModal(cardId,year,month){
   // Build the modal body dynamically so partial-payment section shows/hides on click
   function renderBody(sel){
     const opts=[
-      {k:'pago_total',l:'✅ Pago Total',desc:'Fatura quitada — limite liberado completamente',c:'#2e7d32'},
-      {k:'pago_parcial',l:'💛 Pago Parcialmente',desc:'Informe o valor pago — resto gera dívida no próximo mês',c:'#d97706'},
-      {k:'venceu',l:'🔴 Vencida / Não paga',desc:'Fatura vencida sem pagamento',c:'#c62828'},
+      {k:'pago_total',l:'Pago Total',desc:'Fatura quitada — limite liberado completamente',c:'#2e7d32'},
+      {k:'pago_parcial',l:'Pago Parcialmente',desc:'Informe o valor pago — resto gera dívida no próximo mês',c:'#d97706'},
+      {k:'venceu',l:'Vencida / Não paga',desc:'Fatura vencida sem pagamento',c:'#c62828'},
       {k:'aberto',l:'· Em Aberto',desc:'Ainda não chegou o vencimento',c:'#8892a4'},
     ];
     const showPartial=sel==='pago_parcial';
@@ -2132,8 +2157,8 @@ function openInvoiceModal(cardId,year,month){
     return `
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:1.9rem;font-weight:800;color:var(--text);letter-spacing:-.5px">${fmt(bill)}</div>
-      <div style="font-size:.76rem;color:var(--muted);margin-top:4px">${closed?'🔒 Fatura fechada':'Fatura em aberto'} · ${MONTHS[month]} ${year}</div>
-      ${c.dueDay?`<div style="font-size:.73rem;color:var(--muted);margin-top:2px">📅 Vence dia ${c.dueDay}</div>`:''}
+      <div style="font-size:.76rem;color:var(--muted);margin-top:4px">${closed?'Fatura fechada':'Fatura em aberto'} · ${MONTHS[month]} ${year}</div>
+      ${c.dueDay?`<div style="font-size:.73rem;color:var(--muted);margin-top:2px">Vence dia ${c.dueDay}</div>`:''}
       ${partialPaid>0&&sel==='pago_parcial'?`<div style="margin-top:6px;font-size:.74rem;font-weight:700;color:#d97706">Pago: ${fmt(partialPaid)} · Restante: ${fmt(Math.max(0,restante))}</div>`:''}
     </div>
     <div class="gcard" style="margin-bottom:12px">${opts.map(o=>`
@@ -2150,7 +2175,7 @@ function openInvoiceModal(cardId,year,month){
     </div>
     ${showPartial?`
     <div style="background:var(--accent-light);border:1px solid rgba(0,137,123,.2);border-radius:12px;padding:13px;margin-bottom:10px">
-      <div style="font-size:.7rem;font-weight:700;color:var(--accent2);margin-bottom:10px">💡 Informe o quanto você pagou desta fatura</div>
+      <div style="font-size:.7rem;font-weight:700;color:var(--accent2);margin-bottom:10px">Informe o quanto você pagou desta fatura</div>
       <div class="form-group" style="margin-bottom:8px">
         <label class="form-label">Valor pago (R$)</label>
         <input class="form-input" id="invPartialVal" type="number" inputmode="decimal" step="0.01" placeholder="Ex: 150,00" value="${partialPaid||''}" oninput="invPartialPreview('${cardId}',${year},${month})">
@@ -2161,9 +2186,9 @@ function openInvoiceModal(cardId,year,month){
         <div style="font-size:.62rem;color:var(--muted);margin-top:3px">Cartão de crédito médio: 12–15% ao mês</div>
       </div>
       <div id="invPartialPreviewBox" style="font-size:.74rem;color:var(--accent2);font-weight:600;margin-bottom:10px;min-height:18px"></div>
-      <button class="btn-primary" style="margin-top:0" onclick="confirmPartialPayment('${cardId}',${year},${month})">💾 Confirmar Pagamento Parcial</button>
+      <button class="btn-primary" style="margin-top:0" onclick="confirmPartialPayment('${cardId}',${year},${month})">Confirmarar Pagamento Parcial</button>
     </div>`:''}
-    ${sel==='pago_total'?`<button class="btn-primary" onclick="confirmPagoTotal('${cardId}',${year},${month})">✅ Confirmar Pago Total</button>`:''}
+    ${sel==='pago_total'?`<button class="btn-primary" onclick="confirmPagoTotal('${cardId}',${year},${month})">Confirmar Pago Total</button>`:''}
     ${sel==='venceu'?`<button class="btn-primary" style="background:var(--red);box-shadow:none" onclick="confirmVenceu('${cardId}',${year},${month})">🔴 Marcar como Vencida</button>`:''}
     ${sel==='aberto'?`<button class="btn-primary" style="background:var(--muted);box-shadow:none" onclick="applyInvoiceStatus('${cardId}',${year},${month},'aberto')">Manter Em Aberto</button>`:''}
     `;
@@ -2202,7 +2227,7 @@ function invPartialPreview(cardId,year,month){
   const box=document.getElementById('invPartialPreviewBox');
   if(!box)return;
   if(paid<=0){box.textContent='';return;}
-  if(paid>=bill){box.innerHTML=`<span style="color:var(--green)">✅ Valor igual ou maior que a fatura — use Pago Total!</span>`;return;}
+  if(paid>=bill){box.innerHTML=`<span style="color:var(--green)">Valor igual ou maior que a fatura — use Pago Total!</span>`;return;}
   box.innerHTML=`Pago: <strong>${fmt(paid)}</strong> · Restante: <strong style="color:var(--red)">${fmt(restante)}</strong>${juros>0?` + ${juros}% juros = <strong style="color:var(--red)">${fmt(divida)}</strong> no próximo mês`:'· sem juros definidos'}`;
 }
 
@@ -2234,7 +2259,7 @@ function confirmPartialPayment(cardId,year,month){
     id:uid(),
     month:nextMonth,
     year:nextYear,
-    desc:`💳 Saldo fatura ${c?c.name:'Cartão'} (${MONTHS[month]})${juros>0?` +${juros}% juros`:''}`,
+    desc:`Saldo fatura ${c?c.name:'Cartão'} (${MONTHS[month]})${juros>0?` +${juros}% juros`:''}`,
     value:parseFloat(divida.toFixed(2)),
     cat:'cartao',
     type:'exp',
@@ -2278,9 +2303,9 @@ function updateCapPreview(){
   const totalContract=months?months*monthly:null;
   const firstD=new Date(firstDate+'T00:00:00');
   box.style.display='block';
-  box.innerHTML=`📅 1º débito: <strong>${firstD.toLocaleDateString('pt-BR')}</strong>${payDay?` · Recorrente: dia <strong>${payDay}</strong> todo mês`:''}
-<br>✅ Parcelas já debitadas: <strong>${c.monthsPaid}</strong>${months?` de ${months}`:''}
-<br>💰 Total já pago: <strong>${fmt(c.invested)}</strong>${totalContract?` de ${fmt(totalContract)} total`:''}`;
+  box.innerHTML=`1º débito: <strong>${firstD.toLocaleDateString('pt-BR')}</strong>${payDay?` · Recorrente: dia <strong>${payDay}</strong> todo mês`:''}
+<br>Parcelas já debitadas: <strong>${c.monthsPaid}</strong>${months?` de ${months}`:''}
+<br>Total já pago: <strong>${fmt(c.invested)}</strong>${totalContract?` de ${fmt(totalContract)} total`:''}`;
 }
 function updateInvestFields(){
   const type=document.getElementById('iType').value;
