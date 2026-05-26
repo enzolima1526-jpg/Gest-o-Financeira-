@@ -302,6 +302,40 @@ html,body{
 .cat-btn-label{font-size:.56rem;font-weight:600;color:var(--muted);text-align:center;line-height:1.2;}
 .cat-btn.selected .cat-btn-label{color:var(--accent2);}
 
+/* YEAR SCREEN — fundo mais escuro para melhor contraste */
+#screen-year{background:linear-gradient(160deg,#0d1a2e 0%,#112233 60%,#0a1520 100%);}
+#screen-year .page-hdr{background:rgba(10,20,35,.88);border-bottom-color:rgba(0,137,123,.25);}
+#screen-year .page-hdr .lbl{color:rgba(255,255,255,.45);}
+#screen-year .page-hdr .ttl{color:#fff;}
+#screen-year .year-sel{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);}
+#screen-year .year-arr{color:#4dd9c0;}
+#screen-year .year-lbl{color:#fff;}
+#screen-year .chart-card{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);}
+#screen-year .chart-card div{color:rgba(255,255,255,.6);}
+#screen-year .year-grid{padding:0 16px;margin-bottom:14px;}
+#screen-year .year-cell{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);}
+#screen-year .year-cell:active{background:rgba(0,137,123,.25);}
+#screen-year .yc-name{color:rgba(255,255,255,.55);}
+#screen-year .yc-bal.pos{color:#4dffb0;}
+#screen-year .yc-bal.neg{color:#ff7070;}
+#screen-year .yc-bal.zero{color:rgba(255,255,255,.35);}
+#screen-year .sec-title{color:rgba(255,255,255,.5);}
+#screen-year .gcard{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);}
+#screen-year .entry-row{border-bottom-color:rgba(255,255,255,.07);}
+#screen-year .entry-name{color:#fff;}
+#screen-year .entry-sub{color:rgba(255,255,255,.45);}
+#screen-year .entry-amount.exp{color:#ff7070;}
+#screen-year .entry-amount.inc{color:#4dffb0;}
+#screen-year .entry-stat{color:rgba(255,255,255,.4);}
+#screen-year .bh-label{color:rgba(255,255,255,.55);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:18px 18px 4px;}
+#screen-year .bh-amount{color:#fff;font-size:2.2rem;font-weight:800;padding:0 18px 6px;letter-spacing:-1px;}
+#screen-year .bh-pills{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px;margin-top:0;}
+#screen-year .bhpill{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.13);}
+#screen-year .bhpill-lbl{color:rgba(255,255,255,.5);}
+#screen-year .bhpill-val.g{color:#4dffb0;}
+#screen-year .bhpill-val.r{color:#ff7070;}
+#screen-year .balance-hero{padding:0 0 4px;}
+
 /* YEAR GRID */
 .year-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:0 18px;margin-bottom:12px;}
 .year-cell{background:var(--surface);border-radius:13px;padding:11px 9px;cursor:pointer;transition:all .12s;text-align:center;border:1.5px solid var(--border);}
@@ -1258,6 +1292,74 @@ function renderHome(){
   // Best month
   const bestIdx=ovBalance.reduce((bi,v,i)=>v>ovBalance[bi]?i:bi,0);
 
+  // ── RECEITAS PRIMEIRO ──────────────────
+  // Recurring income section
+  const recs=recurringForYearMonth(currentYear,currentMonth);
+  const salaryRecs=recs.filter(r=>{const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);return ri&&ri.cat==='salario';});
+  const varRecs=recs.filter(r=>{const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);return !ri||ri.cat!=='salario';});
+  const manualIncs=incs.filter(i=>!i.isRecurring);
+  const extraTotal=manualIncs.reduce((s,e)=>s+e.value,0);
+
+  // Bloco unificado de Receitas
+  html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title" style="color:var(--green);font-size:.68rem;">↑ RECEITAS</div><div class="sec-right">${fmt(t.income)}</div></div>`;
+  html+=`<div class="gcard">`;
+
+  // Salário
+  if(salaryRecs.length){
+    salaryRecs.forEach(r=>{
+      const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);
+      html+=`<div class="income-row" onclick="openEditRecurring('${r.recurringId}',${currentYear},${currentMonth})">
+        <div class="entry-icon" style="background:#e8f5e9">💼</div>
+        <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Salário fixo${ri&&ri.day?` · dia ${ri.day}`:''}</div></div>
+        <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div></div>
+      </div>`;
+    });
+  }
+  // Renda variável recorrente
+  if(varRecs.length){
+    varRecs.forEach(r=>{
+      const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);
+      const cat=ri?ri.cat:'outros';const emoji=RI_CATS_EMOJI[cat]||'💰';
+      html+=`<div class="income-row" onclick="openEditRecurring('${r.recurringId}',${currentYear},${currentMonth})">
+        <div class="entry-icon" style="background:#fff8e1">${emoji}</div>
+        <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Renda recorrente${ri&&ri.day?` · dia ${ri.day}`:''}</div></div>
+        <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div></div>
+      </div>`;
+    });
+  }
+  // Rendas extras
+  if(manualIncs.length){
+    manualIncs.forEach(e=>{html+=eRow(e);});
+  }
+  // Se não tem nenhuma receita
+  if(!salaryRecs.length&&!varRecs.length&&!manualIncs.length){
+    html+=`<div class="empty"><div class="empty-icon">💰</div><div class="empty-text">Nenhuma receita em ${MONTHS[currentMonth]}</div></div>`;
+  }
+  html+=`</div>`;
+  // Botões de ação renda
+  html+=`<div style="display:flex;gap:7px;padding:8px 0 4px;">
+    <button class="salary-quick-btn" onclick="openAddIncome()" style="flex:1;justify-content:center;">+ Salário / Renda Recorrente</button>
+    <button class="extra-add-btn" onclick="openAddExtra()" style="flex:1;justify-content:center;">+ Renda Extra</button>
+  </div>`;
+  html+=`</div>`;
+
+  // ── GASTOS ─────────────────────────────
+  const cm={};exps.forEach(e=>{cm[e.cat]=(cm[e.cat]||0)+e.value;});
+  const ck=Object.keys(cm);
+
+  html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title" style="color:var(--red);font-size:.68rem;">↓ GASTOS</div><div class="sec-right" style="color:var(--red)">${exps.length} · ${fmt(exps.reduce((s,e)=>s+e.value,0))}</div></div><div class="gcard">`;
+  if(!exps.length)html+=`<div class="empty"><div class="empty-icon">💸</div><div class="empty-text">Nenhum gasto em ${MONTHS[currentMonth]}</div></div>`;
+  else exps.forEach(e=>{html+=eRow(e);});
+  html+=`</div></div>`;
+
+  // ── GRÁFICO DE CATEGORIAS (logo após gastos) ──
+  if(ck.length){html+=`<div class="chart-card"><div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:11px;">Gastos por Categoria · ${MONTHS[currentMonth]}</div><div class="chart-wrap"><canvas id="catChart"></canvas></div><div class="chart-legend" id="chartLegend"></div></div>`;}
+
+  // ── META ───────────────────────────────
+  if(DB.goal){const sv=Math.max(0,t.balance);const pct=Math.min(100,(sv/DB.goal)*100);html+=`<div class="goal-card"><div class="goal-top"><div style="font-size:.82rem;font-weight:600">🎯 Meta de Economia</div><div style="font-size:.78rem;font-weight:700;color:var(--accent)">${pct.toFixed(0)}%</div></div><div class="goal-track"><div class="goal-fill${sv>=DB.goal?' over':''}" style="width:${pct}%"></div></div><div style="font-size:.68rem;color:var(--muted)">${fmt(sv)} guardado de ${fmt(DB.goal)}${sv>=DB.goal?' · 🎉 Parabéns!':''}</div></div>`;}
+
+  // ── VISÃO GERAL 6 MESES (ao final) ────
+  const cwbCards=DB.cards.filter(c=>cardBill(c.id,currentYear,currentMonth)>0);
   html+=`<div class="overview-card" id="overviewCard">
     <div class="overview-header">
       <span class="overview-title">📊 Visão Geral · 6 meses</span>
@@ -1286,8 +1388,6 @@ function renderHome(){
       <div class="health-bar-track"><div class="health-bar-fill ${healthClass}" style="width:${healthRatio}%"></div></div>
     </div>`;
 
-  // Card bill breakdown (always shown se tiver faturas)
-  const cwbCards=DB.cards.filter(c=>cardBill(c.id,currentYear,currentMonth)>0);
   if(cwbCards.length){
     const totalB=cwbCards.reduce((s,c)=>s+cardBill(c.id,currentYear,currentMonth),0);
     html+=`<div class="card-bill-breakdown">
@@ -1305,93 +1405,6 @@ function renderHome(){
       </div>`;
     });
     html+=`<div class="cbb-total"><div style="font-size:.7rem;font-weight:600;color:var(--muted)">Total faturas</div><div style="font-size:.88rem;font-weight:800;color:var(--red)">${fmt(totalB)}</div></div>`;
-    html+=`</div>`;
-  }
-  html+=`</div>`;
-  // ── END OVERVIEW ───────────────────────
-
-  // Invoice strip (legacy, hidden if already shown above — skip it)
-  const cwb=cwbCards; // already computed
-  // Invoice strip — already shown inside overview card above
-  if(false && cwb.length){
-    const totalB=cwb.reduce((s,c)=>s+cardBill(c.id,currentYear,currentMonth),0);
-    html+=`<div class="inv-strip"><div class="inv-title">💳 Faturas do Mês</div>`;
-    cwb.forEach(c=>{
-      const bill=cardBill(c.id,currentYear,currentMonth);
-      const inv=getInvoiceStatus(c.id,currentYear,currentMonth);
-      const cl=isInvoiceClosed(c,currentYear,currentMonth);
-      const sl=inv==='pago_total'||inv==='pago'?'Paga':inv==='pago_parcial'?'Parcial':inv==='pago_minimo'?'Mín. Pago':inv==='venceu'?'Vencida':cl?'Fechada':'Em aberto';
-      const sc=inv==='pago_total'||inv==='pago'?'pago':inv==='pago_parcial'?'aberto':inv==='pago_minimo'?'aberto':inv==='venceu'?'aberto':cl?'fechada':'aberto';
-      const ccol=CARD_COLORS.find(x=>x.id===(c.color||'slate'));
-      html+=`<div class="inv-row"><div class="inv-name"><div class="inv-dot" style="background:${ccol?ccol.hex:'#334155'}"></div>${c.name}</div><div class="inv-right"><div class="inv-amt">${fmt(bill)}</div><button class="inv-badge ${sc}" onclick="openInvoiceModal('${c.id}',${currentYear},${currentMonth})">${sl}</button></div></div>`;
-    });
-    html+=`<div class="inv-total-row"><div style="font-size:.7rem;font-weight:600;color:var(--muted)">Total faturas</div><div style="font-size:.88rem;font-weight:800;color:var(--red)">${fmt(totalB)}</div></div></div>`;
-  }
-
-  // Goal
-  if(DB.goal){const sv=Math.max(0,t.balance);const pct=Math.min(100,(sv/DB.goal)*100);html+=`<div class="goal-card"><div class="goal-top"><div style="font-size:.82rem;font-weight:600">🎯 Meta de Economia</div><div style="font-size:.78rem;font-weight:700;color:var(--accent)">${pct.toFixed(0)}%</div></div><div class="goal-track"><div class="goal-fill${sv>=DB.goal?' over':''}" style="width:${pct}%"></div></div><div style="font-size:.68rem;color:var(--muted)">${fmt(sv)} guardado de ${fmt(DB.goal)}${sv>=DB.goal?' · 🎉 Parabéns!':''}</div></div>`;}
-
-  // Chart
-  const cm={};exps.forEach(e=>{cm[e.cat]=(cm[e.cat]||0)+e.value;});
-  const ck=Object.keys(cm);
-  if(ck.length){html+=`<div class="chart-card"><div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:11px;">Gastos por Categoria</div><div class="chart-wrap"><canvas id="catChart"></canvas></div><div class="chart-legend" id="chartLegend"></div></div>`;}
-
-  // Recurring income section
-  const recs=recurringForYearMonth(currentYear,currentMonth);
-  const salaryRecs=recs.filter(r=>{const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);return ri&&ri.cat==='salario';});
-  const varRecs=recs.filter(r=>{const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);return !ri||ri.cat!=='salario';});
-
-  // Salário — seção melhorada
-  if(salaryRecs.length){
-    const salTotal=salaryRecs.reduce((s,r)=>s+r.value,0);
-    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💼 Salário</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:.72rem;font-weight:700;color:var(--green)">${fmt(salTotal)}</span><button class="salary-quick-btn" onclick="openAddIncome()">+ Adicionar</button></div></div><div class="gcard">`;
-    salaryRecs.forEach(r=>{
-      const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);
-      html+=`<div class="income-row" onclick="openEditRecurring('${r.recurringId}',${currentYear},${currentMonth})">
-        <div class="entry-icon" style="background:#e8f5e9">💼</div>
-        <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Fixo todo mês${ri&&ri.day?` · cai dia ${ri.day}`:''}</div></div>
-        <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div><div style="font-size:.6rem;color:var(--muted)">Toque p/ ajustar</div></div>
-      </div>`;
-    });
-    html+=`</div></div>`;
-  } else {
-    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💼 Salário</div></div>
-    <div style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:1.5px dashed #66bb6a;border-radius:14px;padding:14px 16px;margin:0 18px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-      <div><div style="font-size:.82rem;font-weight:700;color:#2e7d32">Cadastre seu salário</div><div style="font-size:.68rem;color:#558b2f;margin-top:2px">Aparece todo mês automaticamente</div></div>
-      <button class="salary-quick-btn" onclick="openAddIncome()">+ Cadastrar</button>
-    </div></div>`;
-  }
-
-  // Rendas variáveis recorrentes
-  if(varRecs.length){
-    html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💰 Renda Variável Recorrente</div><button class="salary-quick-btn" onclick="openAddIncome()">+ Nova</button></div><div class="gcard">`;
-    varRecs.forEach(r=>{
-      const ri=DB.recurringIncome.find(x=>x.id===r.recurringId);
-      const cat=ri?ri.cat:'outros';
-      const emoji=RI_CATS_EMOJI[cat]||'💰';
-      html+=`<div class="income-row" onclick="openEditRecurring('${r.recurringId}',${currentYear},${currentMonth})">
-        <div class="entry-icon" style="background:#fff8e1">${emoji}</div>
-        <div class="entry-info"><div class="entry-name">${r.desc}</div><div class="entry-sub">Recorrente${ri&&ri.day?` · todo mês dia ${ri.day}`:''}</div></div>
-        <div class="entry-right"><div class="entry-amount inc">+${fmt(r.value)}</div><div style="font-size:.6rem;color:var(--muted)">Toque p/ ajustar</div></div>
-      </div>`;
-    });
-    html+=`</div></div>`;
-  }
-
-  html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">Gastos</div><div class="sec-right">${exps.length} · ${fmt(exps.reduce((s,e)=>s+e.value,0))}</div></div><div class="gcard">`;
-  if(!exps.length)html+=`<div class="empty"><div class="empty-icon">💸</div><div class="empty-text">Nenhum gasto em ${MONTHS[currentMonth]}</div></div>`;
-  else exps.forEach(e=>{html+=eRow(e);});
-  html+=`</div></div>`;
-
-  // Rendas extras melhoradas
-  const manualIncs=incs.filter(i=>!i.isRecurring);
-  const extraTotal=manualIncs.reduce((s,e)=>s+e.value,0);
-  html+=`<div class="sec"><div class="sec-hdr"><div class="sec-title">💵 Rendas Extras</div><div style="display:flex;align-items:center;gap:6px;">${manualIncs.length?`<span style="font-size:.72rem;font-weight:700;color:var(--green)">${fmt(extraTotal)}</span>`:''}<button class="extra-add-btn" onclick="openAddExtra()">+ Adicionar</button></div></div>`;
-  if(!manualIncs.length){
-    html+=`<div style="background:linear-gradient(135deg,#fff8e1,#fffde7);border:1.5px dashed #ffc107;border-radius:14px;padding:14px 16px;margin:0 18px 11px;"><div style="font-size:.8rem;font-weight:600;color:#795548;margin-bottom:4px">Nenhuma renda extra em ${MONTHS[currentMonth]}</div><div style="font-size:.67rem;color:#a1887f">Freelance, bônus, vendas, presentes...</div></div>`;
-  } else {
-    html+=`<div class="gcard">`;
-    manualIncs.forEach(e=>{html+=eRow(e);});
     html+=`</div>`;
   }
   html+=`</div>`;
@@ -1492,7 +1505,7 @@ function renderYear(){
   }
   document.getElementById('yearContent').innerHTML=html;
   const ctx=document.getElementById('yearChart');
-  if(ctx){new Chart(ctx,{type:'bar',data:{labels:MONTHS.map(m=>m.slice(0,3)),datasets:[{label:'Receitas',data:MONTHS.map((_,i)=>totalsForYearMonth(currentYear,i).income),backgroundColor:'rgba(0,168,107,.65)',borderRadius:5},{label:'Gastos',data:MONTHS.map((_,i)=>totalsForYearMonth(currentYear,i).expense),backgroundColor:'rgba(229,57,53,.6)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892a4',font:{size:10},boxWidth:9,boxHeight:9}}},scales:{x:{ticks:{color:'#8892a4',font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{color:'#8892a4',font:{size:9},callback:v=>'R$'+v.toLocaleString('pt-BR')},grid:{color:'rgba(0,0,0,.04)'},border:{dash:[3,3]}}}}});}
+  if(ctx){new Chart(ctx,{type:'bar',data:{labels:MONTHS.map(m=>m.slice(0,3)),datasets:[{label:'Receitas',data:MONTHS.map((_,i)=>totalsForYearMonth(currentYear,i).income),backgroundColor:'rgba(77,255,176,.55)',borderRadius:5},{label:'Gastos',data:MONTHS.map((_,i)=>totalsForYearMonth(currentYear,i).expense),backgroundColor:'rgba(255,112,112,.55)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(255,255,255,.6)',font:{size:10},boxWidth:9,boxHeight:9}}},scales:{x:{ticks:{color:'rgba(255,255,255,.5)',font:{size:9}},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'rgba(255,255,255,.5)',font:{size:9},callback:v=>'R$'+v.toLocaleString('pt-BR')},grid:{color:'rgba(255,255,255,.06)'},border:{dash:[3,3]}}}}});}
 }
 
 // ════════════════════════════════════════
