@@ -307,6 +307,11 @@ html,body{
 #screen-year .bh-amount{color:var(--text);font-size:2.2rem;font-weight:800;padding:0 18px 6px;letter-spacing:-1px;}
 #screen-year .bh-pills{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px;margin-top:0;}
 #screen-year .balance-hero{padding:0 0 4px;}
+/* Pills fora do card verde precisam de fundo e texto com bom contraste */
+#screen-year .bhpill{background:var(--surface);border:1.5px solid var(--border2);}
+#screen-year .bhpill-lbl{color:var(--muted);}
+#screen-year .bhpill-val.g{color:var(--green);}
+#screen-year .bhpill-val.r{color:var(--red);}
 
 /* YEAR GRID */
 .year-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:0 18px;margin-bottom:12px;}
@@ -547,7 +552,7 @@ html,body{
       <div class="balance-hero">
         <div class="bh-card">
           <div class="bh-toprow">
-            <div class="bh-month-badge" id="ghMonthBadge">Janeiro · 2026</div>
+            <div class="bh-month-badge" id="ghMonthBadge" onclick="toggleMonthPicker()" style="cursor:pointer;display:flex;align-items:center;gap:5px;">Janeiro · 2026 <span style="font-size:.65rem;opacity:.7">▾</span></div>
             <button class="eye-btn" id="eyeBtn" style="color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;" onclick="togglePrivacy()"><svg id="eyeIcon" width="22" height="16" viewBox="0 0 24 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 9C3 4 7 1 12 1s9 3 11 8c-2 5-6 8-11 8S3 14 1 9z"/><circle cx="12" cy="9" r="3"/><line id="eyeSlash" x1="3" y1="2" x2="21" y2="16" stroke="currentColor" stroke-width="1.8" style="display:none"/></svg></button>
           </div>
           <div class="bh-label">SALDO DO MÊS</div>
@@ -933,6 +938,42 @@ html,body{
   </div>
 </div>
 
+<!-- MONTH PICKER POPUP -->
+<div id="monthPickerPopup" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:400;" onclick="closeMonthPicker()">
+  <div id="monthPickerCard" style="position:absolute;top:calc(var(--safe-top) + 80px);left:16px;right:16px;background:var(--surface);border-radius:20px;border:1.5px solid var(--border2);box-shadow:0 12px 40px rgba(0,0,0,.18);padding:16px;animation:popIn .18s cubic-bezier(.34,1.4,.64,1);" onclick="event.stopPropagation()">
+    <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;padding:0 2px;">Selecionar mês</div>
+    <div id="monthPickerGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+      <button onclick="changeYearPicker(-1)" style="background:var(--bg);border:1.5px solid var(--border2);color:var(--accent);border-radius:8px;padding:5px 12px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">‹</button>
+      <div id="monthPickerYear" style="font-size:.9rem;font-weight:800;color:var(--text);min-width:44px;text-align:center;"></div>
+      <button onclick="changeYearPicker(1)" style="background:var(--bg);border:1.5px solid var(--border2);color:var(--accent);border-radius:8px;padding:5px 12px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">›</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIGGY BANK ADD MODAL -->
+<div class="modal-overlay" id="piggyModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">🪙 Adicionar ao Cofrinho</div><button class="modal-close" onclick="closePiggyModal()">✕</button></div>
+    <div class="modal-body">
+      <div style="background:var(--accent-light);border-radius:14px;padding:13px 14px;margin-bottom:14px;text-align:center;">
+        <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Total guardado este mês</div>
+        <div id="piggyCurrentTotal" style="font-size:1.6rem;font-weight:800;color:var(--accent);letter-spacing:-.5px;">R$ 0,00</div>
+        <div id="piggyGoalStatus" style="font-size:.72rem;color:var(--accent2);margin-top:3px;"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Quanto você guardou agora? (R$)</label><input class="form-input" id="piggyValueInput" type="number" inputmode="decimal" placeholder="Ex: 50,00" min="0.01" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Observação (opcional)</label><input class="form-input" id="piggyNoteInput" placeholder="Ex: Guardei do troco..."></div>
+      <button class="btn-primary" onclick="savePiggyEntry()">+ Guardar no Cofrinho</button>
+      <div id="piggyHistoryList" style="margin-top:16px;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(.94) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+</style>
+
 <script>
 // ════════════════════════════════════════
 //  CONSTANTS
@@ -997,10 +1038,11 @@ function load(){
     if(!d.recurringIncome)d.recurringIncome=[];
     if(!d.profile)d.profile={name:'',objective:'',lastName:'',cpf:'',email:'',phone:'',photo:''};
     if(!d.profile.photo)d.profile.photo='';
+    if(!d.piggyBank)d.piggyBank={};
     return d;
   }catch{return init();}
 }
-function init(){return{entries:[],installments:[],cards:[],statuses:{},invoiceStatuses:{},goal:null,profile:{name:'',objective:'Organizar as finanças',lastName:'',cpf:'',email:'',phone:'',photo:''},investments:[],recurringIncome:[]};}
+function init(){return{entries:[],installments:[],cards:[],statuses:{},invoiceStatuses:{},goal:null,profile:{name:'',objective:'Organizar as finanças',lastName:'',cpf:'',email:'',phone:'',photo:''},investments:[],recurringIncome:[],piggyBank:{}};}
 function save(){localStorage.setItem(KEY,JSON.stringify(DB));}
 let DB=load();
 
@@ -1011,7 +1053,7 @@ let addType='exp';
 let selectedCat='outros';
 let chartInst=null;
 let overviewChartInst=null;
-let homeIncomeChart=null,homeExpenseChart=null;
+let homeIncomeChart=null,homeExpenseChart=null,homeMainChartInst=null;
 let overviewMode='bar'; // 'bar' | 'line'
 let editingCardId=null;
 let editingInvestId=null;
@@ -1272,6 +1314,102 @@ function renderHome(){
   // Best month
   const bestIdx=ovBalance.reduce((bi,v,i)=>v>ovBalance[bi]?i:bi,0);
 
+  // ── GRÁFICO DE LINHA DO MÊS (evolução diária) ──
+  // Monta dados dia a dia para o mês atual
+  const daysInMonth=new Date(currentYear, currentMonth+1, 0).getDate();
+  const dailyInc=new Array(daysInMonth).fill(0);
+  const dailyExp=new Array(daysInMonth).fill(0);
+  // Entradas manuais com dia
+  entries.forEach(e=>{
+    const day=(e.day||1)-1; // day field if exists, else day 1
+    if(day>=0&&day<daysInMonth){
+      if(e.type==='inc') dailyInc[day]+=e.value;
+      else if(e.type==='exp') dailyExp[day]+=e.value;
+    }
+  });
+  // Acumulado
+  const cumInc=[],cumExp=[];
+  let si=0,se=0;
+  for(let d=0;d<daysInMonth;d++){si+=dailyInc[d];se+=dailyExp[d];cumInc.push(parseFloat(si.toFixed(2)));cumExp.push(parseFloat(se.toFixed(2)));}
+  const dayLabels=Array.from({length:daysInMonth},(_,i)=>i+1);
+  // Só mostra dias até hoje se for o mês/ano atual
+  const isCurrentMonth=(currentYear===CY&&currentMonth===NOW.getMonth());
+  const todayDay=isCurrentMonth?NOW.getDate():daysInMonth;
+  const showLabels=dayLabels.filter(d=>d%Math.ceil(daysInMonth/7)===1||d===daysInMonth||d===1).map(d=>d<=todayDay?String(d):'');
+
+  html+=`<div style="padding:0 16px;margin-bottom:12px;">
+    <div style="background:var(--surface);border-radius:20px;border:1.5px solid var(--border);box-shadow:var(--sh);overflow:hidden;">
+      <div style="padding:14px 16px 0;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;">Evolução · ${MONTHS[currentMonth]}</div>
+          <div style="font-size:.78rem;font-weight:800;color:var(--text);margin-top:1px;">Acumulado no mês</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:.6rem;color:var(--muted)">Saldo acumulado</div>
+          <div style="font-size:.92rem;font-weight:800;color:${t.balance>=0?'var(--green)':'var(--red)'}">${t.balance<0?'− ':''}${fmt(t.balance)}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;padding:6px 16px 10px;">
+        <div style="display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--text2);"><div style="width:10px;height:3px;background:#00a86b;border-radius:2px;"></div>Receitas ${fmt(t.income)}</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--text2);"><div style="width:10px;height:3px;background:#e53935;border-radius:2px;"></div>Gastos ${fmt(t.expense)}</div>
+      </div>
+      <div style="position:relative;height:150px;padding:0 8px 10px;">
+        <canvas id="homeMainChart"></canvas>
+      </div>
+    </div>
+  </div>`;
+
+  // ── COFRINHO MANUAL (acumulativo) ──
+  if(DB.goal){
+    if(!DB.piggyBank)DB.piggyBank={};
+    const pbKey=`${currentYear}_${currentMonth}`;
+    const pbEntries=DB.piggyBank[pbKey]||[];
+    const pbTotal=pbEntries.reduce((s,e)=>s+e.value,0);
+    const pct=Math.min(100,(pbTotal/DB.goal)*100);
+    const falta=Math.max(0,DB.goal-pbTotal);
+    const achieved=pbTotal>=DB.goal;
+    // Total geral do cofrinho (todos os meses)
+    const allTimeTotal=Object.values(DB.piggyBank||{}).flat().reduce((s,e)=>s+e.value,0);
+    html+=`<div style="padding:0 16px;margin-bottom:12px;">
+      <div style="background:var(--surface);border-radius:18px;border:1.5px solid var(--border);box-shadow:var(--sh);padding:14px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="font-size:1.5rem;line-height:1;">${achieved?'🎉':'🪙'}</div>
+            <div>
+              <div style="font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;">Cofrinho · ${MONTHS[currentMonth]}</div>
+              <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-top:2px;">${achieved?'🎊 Meta batida!':falta>0?`Faltam ${fmt(falta)}`:'Tudo guardado!'}</div>
+            </div>
+          </div>
+          <button onclick="openPiggyModal()" style="background:var(--accent);color:#fff;border:none;border-radius:12px;padding:7px 14px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 2px 8px rgba(0,137,123,.3);">+ Guardar</button>
+        </div>
+        <div style="height:8px;background:var(--bg);border-radius:10px;overflow:hidden;margin-bottom:10px;">
+          <div style="height:100%;border-radius:10px;width:${pct}%;background:${achieved?'linear-gradient(90deg,#00c853,#00e676)':'linear-gradient(90deg,#00897b,#43e8d8)'};transition:width .6s;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+          <div style="background:var(--bg);border-radius:10px;padding:9px 8px;text-align:center;border:1px solid var(--border);">
+            <div style="font-size:.5rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;">Este mês</div>
+            <div style="font-size:.82rem;font-weight:800;color:${pbTotal>0?'var(--green)':'var(--muted)'};">${pbTotal>0?fmt(pbTotal):'R$\u00a00'}</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:9px 8px;text-align:center;border:1px solid var(--border);">
+            <div style="font-size:.5rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;">Meta</div>
+            <div style="font-size:.82rem;font-weight:800;color:var(--accent);">${fmt(DB.goal)}</div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:9px 8px;text-align:center;border:1px solid var(--border);">
+            <div style="font-size:.5rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;">Total Geral</div>
+            <div style="font-size:.82rem;font-weight:800;color:var(--green);">${allTimeTotal>0?fmt(allTimeTotal):'R$\u00a00'}</div>
+          </div>
+        </div>
+        ${pbEntries.length>0?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+          <div style="font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;">Últimos depósitos</div>
+          ${[...pbEntries].reverse().slice(0,3).map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);">
+            <div style="font-size:.72rem;color:var(--text2);">${e.note||'Depósito no cofrinho'}</div>
+            <div style="font-size:.78rem;font-weight:700;color:var(--green);">+${fmt(e.value)}</div>
+          </div>`).join('')}
+        </div>`:''}
+      </div>
+    </div>`;
+  }  // end if(DB.goal)
+
   // ── GRÁFICOS DE RECEITAS E GASTOS DO MÊS ──
   html+=`<div class="home-charts-section">
     <div class="hcs-card">
@@ -1353,8 +1491,8 @@ function renderHome(){
   // ── GRÁFICO DE CATEGORIAS (logo após gastos) ──
   if(ck.length){html+=`<div class="chart-card"><div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:11px;">Gastos por Categoria · ${MONTHS[currentMonth]}</div><div class="chart-wrap"><canvas id="catChart"></canvas></div><div class="chart-legend" id="chartLegend"></div></div>`;}
 
-  // ── META ───────────────────────────────
-  if(DB.goal){const sv=Math.max(0,t.balance);const pct=Math.min(100,(sv/DB.goal)*100);html+=`<div class="goal-card"><div class="goal-top"><div style="font-size:.82rem;font-weight:600">Meta de Economia</div><div style="font-size:.78rem;font-weight:700;color:var(--accent)">${pct.toFixed(0)}%</div></div><div class="goal-track"><div class="goal-fill${sv>=DB.goal?' over':''}" style="width:${pct}%"></div></div><div style="font-size:.68rem;color:var(--muted)">${fmt(sv)} guardado de ${fmt(DB.goal)}${sv>=DB.goal?' · 🎉 Parabéns!':''}</div></div>`;}
+  // ── META — agora exibida no topo da home, antes dos gráficos ──
+  // (removida daqui para evitar duplicação)
 
   // ── VISÃO GERAL 6 MESES (ao final) ────
   const cwbCards=DB.cards.filter(c=>cardBill(c.id,currentYear,currentMonth)>0);
@@ -1421,6 +1559,47 @@ function renderHome(){
   setTimeout(()=>{
     drawOverviewChart(ovLabels, ovIncome, ovExpense, ovBalance, ovFatura);
     drawHomeCharts(incs, exps, t);
+    // ── GRÁFICO DE LINHA DO MÊS ──
+    if(homeMainChartInst){homeMainChartInst.destroy();homeMainChartInst=null;}
+    const mmCtx=document.getElementById('homeMainChart');
+    if(mmCtx){
+      // Só plota até hoje se for o mês atual
+      const isNow=(currentYear===CY&&currentMonth===NOW.getMonth());
+      const cutDay=isNow?NOW.getDate():daysInMonth;
+      const visLabels=dayLabels.slice(0,cutDay).map((d,i)=>{
+        const step=Math.ceil(cutDay/6);
+        return(d===1||d===cutDay||d%step===0)?String(d):'';
+      });
+      homeMainChartInst=new Chart(mmCtx,{
+        type:'line',
+        data:{
+          labels:visLabels,
+          datasets:[
+            {label:'Receitas',data:cumInc.slice(0,cutDay),borderColor:'#00a86b',backgroundColor:'rgba(0,168,107,.1)',tension:.35,borderWidth:2.5,pointRadius:0,pointHoverRadius:5,pointBackgroundColor:'#00a86b',fill:true},
+            {label:'Gastos',data:cumExp.slice(0,cutDay),borderColor:'#e53935',backgroundColor:'rgba(229,57,53,.08)',tension:.35,borderWidth:2.5,pointRadius:0,pointHoverRadius:5,pointBackgroundColor:'#e53935',fill:true}
+          ]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          interaction:{mode:'index',intersect:false},
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              backgroundColor:'rgba(15,22,41,.92)',padding:10,
+              titleFont:{size:10,weight:'700'},bodyFont:{size:10},
+              callbacks:{
+                title:items=>`Dia ${items[0].label||items[0].dataIndex+1} de ${MONTHS[currentMonth]}`,
+                label:c=>`${c.dataset.label}: ${fmt(c.raw)}`
+              }
+            }
+          },
+          scales:{
+            x:{ticks:{color:'#8892a4',font:{size:8}},grid:{display:false},border:{display:false}},
+            y:{ticks:{color:'#8892a4',font:{size:8},callback:v=>v>=1000?'R$'+(v/1000).toFixed(0)+'k':'R$'+v.toFixed(0),maxTicksLimit:4},grid:{color:'rgba(0,0,0,.05)'},border:{dash:[3,3],display:false}}
+          }
+        }
+      });
+    }
   }, 30);
 
   // Apply privacy if active
@@ -2496,8 +2675,97 @@ function exportPDF(){
 }
 function clearAll(){if(!confirm('Apagar TODOS os dados?'))return;const p=DB.profile;DB=init();DB.profile=p;save();renderProfile();}
 
+// ════════════════════════════════════════
+//  MONTH PICKER
+// ════════════════════════════════════════
+let pickerYear=currentYear;
+function toggleMonthPicker(){
+  const popup=document.getElementById('monthPickerPopup');
+  if(popup.style.display==='block'){closeMonthPicker();return;}
+  pickerYear=currentYear;
+  renderMonthPicker();
+  popup.style.display='block';
+}
+function closeMonthPicker(){document.getElementById('monthPickerPopup').style.display='none';}
+function changeYearPicker(d){pickerYear+=d;renderMonthPicker();}
+function renderMonthPicker(){
+  document.getElementById('monthPickerYear').textContent=pickerYear;
+  const grid=document.getElementById('monthPickerGrid');
+  grid.innerHTML=MONTHS.map((m,i)=>{
+    const isActive=(pickerYear===currentYear&&i===currentMonth);
+    const hasDat=allForYearMonth(pickerYear,i).length>0;
+    return`<button onclick="selectMonthFromPicker(${i},${pickerYear})" style="padding:8px 4px;border-radius:10px;border:1.5px solid ${isActive?'var(--accent)':'var(--border)'};background:${isActive?'var(--accent-light)':'var(--bg)'};color:${isActive?'var(--accent2)':'var(--text2)'};font-size:.72rem;font-weight:${isActive?'800':'600'};cursor:pointer;font-family:'Inter',sans-serif;position:relative;">
+      ${m.slice(0,3)}${hasDat?`<span style="position:absolute;top:3px;right:4px;width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:${isActive?1:.5};"></span>`:''}
+    </button>`;
+  }).join('');
+}
+function selectMonthFromPicker(m,y){
+  currentMonth=m;currentYear=y;
+  closeMonthPicker();
+  renderHome();
+  const sc=document.getElementById('screen-home');
+  if(sc)sc.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ════════════════════════════════════════
+//  PIGGY BANK (COFRINHO)
+// ════════════════════════════════════════
+function openPiggyModal(){
+  if(!DB.goal){alert('Defina uma meta mensal primeiro (Perfil → Meta mensal)');return;}
+  if(!DB.piggyBank)DB.piggyBank={};
+  const pbKey=`${currentYear}_${currentMonth}`;
+  const pbEntries=DB.piggyBank[pbKey]||[];
+  const pbTotal=pbEntries.reduce((s,e)=>s+e.value,0);
+  const falta=Math.max(0,DB.goal-pbTotal);
+  document.getElementById('piggyCurrentTotal').textContent=fmt(pbTotal);
+  document.getElementById('piggyGoalStatus').textContent=pbTotal>=DB.goal?'🎉 Meta batida!':falta>0?`Faltam ${fmt(falta)} para a meta de ${fmt(DB.goal)}`:'';
+  document.getElementById('piggyValueInput').value='';
+  document.getElementById('piggyNoteInput').value='';
+  // History
+  const hist=document.getElementById('piggyHistoryList');
+  if(pbEntries.length){
+    hist.innerHTML=`<div style="font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">Histórico · ${MONTHS[currentMonth]}</div>`+
+    [...pbEntries].reverse().map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:.78rem;font-weight:500;color:var(--text)">${e.note||'Depósito no cofrinho'}</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:1px;">${new Date(e.date).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="font-size:.82rem;font-weight:700;color:var(--green);">+${fmt(e.value)}</div>
+        <button onclick="deletePiggyEntry('${e.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:2px 4px;">✕</button>
+      </div>
+    </div>`).join('');
+  } else {
+    hist.innerHTML='';
+  }
+  document.getElementById('piggyModal').classList.add('open');
+}
+function closePiggyModal(){document.getElementById('piggyModal').classList.remove('open');}
+function savePiggyEntry(){
+  const val=parseFloat(document.getElementById('piggyValueInput').value);
+  if(isNaN(val)||val<=0){alert('Informe um valor válido!');return;}
+  const note=document.getElementById('piggyNoteInput').value.trim();
+  if(!DB.piggyBank)DB.piggyBank={};
+  const pbKey=`${currentYear}_${currentMonth}`;
+  if(!DB.piggyBank[pbKey])DB.piggyBank[pbKey]=[];
+  DB.piggyBank[pbKey].push({id:uid(),value:val,note,date:new Date().toISOString()});
+  save();
+  closePiggyModal();
+  renderHome();
+}
+function deletePiggyEntry(entryId){
+  if(!confirm('Remover este depósito?'))return;
+  const pbKey=`${currentYear}_${currentMonth}`;
+  if(DB.piggyBank&&DB.piggyBank[pbKey]){
+    DB.piggyBank[pbKey]=DB.piggyBank[pbKey].filter(e=>e.id!==entryId);
+    save();
+  }
+  closePiggyModal();
+  renderHome();
+}
+
 // MODAL CLOSE ON OVERLAY
-['addModal','detailModal','goalModal','cardModal','invoiceModal','investModal','pdfModal','incomeModal','editProfileModal'].forEach(id=>{
+['addModal','detailModal','goalModal','cardModal','invoiceModal','investModal','pdfModal','incomeModal','editProfileModal','piggyModal'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 });
 
