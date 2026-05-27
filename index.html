@@ -388,7 +388,7 @@ html,body{
 .tab-item.active .tab-active-dot{opacity:1;transform:scale(1);}
 
 /* SCROLL-AWARE HEADER */
-.page-hdr{padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;background:rgba(242,244,248,.85);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(228,232,240,0);transition:border-color .2s,box-shadow .2s;}
+.page-hdr{padding:14px 18px 8px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;background:rgba(232,236,244,.92);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid transparent;transition:border-color .2s,box-shadow .2s;}
 .page-hdr.scrolled{border-bottom-color:rgba(228,232,240,.7);box-shadow:0 2px 12px rgba(0,0,0,.06);}
 
 /* SCREENS — simples e sem bug */
@@ -450,6 +450,7 @@ html,body{
 .btn-primary:active{opacity:.88;}
 .btn-secondary{width:100%;padding:12px;background:var(--bg);color:var(--text2);border:1.5px solid var(--border);border-radius:12px;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;margin-top:8px;}
 .btn-danger{width:100%;padding:12px;background:#fef2f2;color:var(--red);border:1.5px solid #fecaca;border-radius:12px;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;margin-top:8px;}
+.btn-ghost{width:100%;padding:12px;background:transparent;color:var(--muted);border:1.5px solid var(--border2);border-radius:12px;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;}
 .settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
 .settings-row:last-child{border-bottom:none;}
 .sr-label{font-size:.83rem;font-weight:500;color:var(--text);}
@@ -544,6 +545,7 @@ html,body{
         <div class="page-hdr-left"><div class="lbl" id="ghGreeting">Bom dia</div><div class="ttl" id="ghName">...</div></div>
         <div class="page-hdr-right">
           <div class="year-sel"><button class="year-arr" onclick="changeYear(-1)">‹</button><div class="year-lbl" id="homeYearLbl">2026</div><button class="year-arr" onclick="changeYear(1)">›</button></div>
+          <div class="hdr-avatar" id="ghAvatar" onclick="switchTab('profile')">?</div>
           <button class="fab" id="fabBtn" onclick="openAdd()">+</button>
         </div>
       </div>
@@ -1270,7 +1272,7 @@ function renderHome(){
   const ghInv=document.getElementById('ghInvest');
   if(ghInv)ghInv.textContent=fmt(totalInvested);
   const av=document.getElementById('ghAvatar');
-  av.innerHTML=p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.name?p.name.charAt(0).toUpperCase():'?');
+  if(av)av.innerHTML=p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(p.name?p.name.charAt(0).toUpperCase():'?');
 
   // ── MONTH STRIP — usa o novo elemento homeMonthStrip
   let ms='';MONTHS.forEach((m,i)=>{const hd=allForYearMonth(currentYear,i).length>0;ms+=`<button class="mpill${currentMonth===i?' active':''}${hd?' has-data':''}" id="mpill-${i}" onclick="goMonth(${i})">${m}</button>`;});
@@ -2005,34 +2007,164 @@ function openDetail(entryId){
   const e=allForYearMonth(currentYear,currentMonth).find(x=>x.id===entryId);
   if(!e)return;
   const cat=getCat(e.cat);const status=getStatus(e.id);const card=e.cardId?getCard(e.cardId):null;
-  const so=[{k:'pago',l:'Pago',c:'#2e7d32'},{k:'aberto',l:'Em aberto',c:'#f57c00'},{k:'nao-pago',l:'Não pago',c:'#c62828'}];
-  let html=`<div style="text-align:center;margin-bottom:18px">
+  const so=[{k:'pago',l:'✓ Pago',c:'#2e7d32'},{k:'aberto',l:'· Em aberto',c:'#f57c00'},{k:'nao-pago',l:'✗ Não pago',c:'#c62828'}];
+  const statusColors={pago:'#2e7d32',aberto:'#f57c00','nao-pago':'#c62828'};
+  const statusLabels={pago:'Pago',aberto:'Em aberto','nao-pago':'Não pago'};
+  let html=`<div style="text-align:center;margin-bottom:16px">
     <div style="width:56px;height:56px;border-radius:16px;background:${cat.bg};display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;margin:0 auto 9px;color:${cat.color}">${cat.label.slice(0,2).toUpperCase()}</div>
     <div style="font-size:1rem;font-weight:700;color:var(--text)">${e.desc}</div>
     <div style="font-size:1.6rem;font-weight:800;color:${e.type==='exp'?'var(--red)':'var(--green)'};margin-top:3px;letter-spacing:-.5px">${e.type==='exp'?'−':'+'}${fmt(e.value)}</div>
     ${e.isInst?`<div style="font-size:.72rem;color:var(--muted);margin-top:2px">Parcela ${e.parcelNum}/${e.totalParcels} · Total: ${fmt(e.totalValue||0)}</div>`:''}
+    <div style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:20px;padding:4px 12px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:${statusColors[status]};flex-shrink:0;"></div>
+      <span style="font-size:.72rem;font-weight:700;color:${statusColors[status]}">${statusLabels[status]}</span>
+    </div>
   </div>
   <div class="gcard" style="margin-bottom:13px">
     <div class="settings-row"><div class="sr-label">Categoria</div><div class="sr-val">${cat.label}</div></div>
-    ${card?`<div class="settings-row"><div class="sr-label">Cartão</div><div class="sr-val">${card.name}</div></div>`:''}
+    ${card?`<div class="settings-row"><div class="sr-label">Cartão</div><div class="sr-val" style="color:#0369a1">💳 ${card.name}</div></div>`:''}
     <div class="settings-row"><div class="sr-label">Mês / Ano</div><div class="sr-val">${MONTHS[e.month]} ${e.year}</div></div>
   </div>
-  <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">Status</div>
+  <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">Alterar Status</div>
   <div class="gcard" style="margin-bottom:13px">
-    ${so.map(s=>`<div class="settings-row" onclick="applyStatus('${e.id}','${s.k}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:${s.c}"></div><div class="sr-label">${s.l}</div></div>${status===s.k?`<div style="color:var(--accent)">✓</div>`:''}</div>`).join('')}
+    ${so.map(s=>`<div class="settings-row" onclick="applyStatus('${e.id}','${s.k}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:${s.c}"></div><div class="sr-label">${s.l}</div></div>${status===s.k?`<div style="color:var(--accent);font-weight:700;">✓</div>`:''}</div>`).join('')}
   </div>`;
   if(!e.isInst){
-    html+=`<button class="btn-danger" onclick="confirmDelete('${e.id}')">Excluir Lançamento</button>`;
+    // Editar lançamento normal
+    html+=`<div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">Ações</div>
+    <div class="gcard" style="margin-bottom:13px">
+      <div class="settings-row" onclick="openEditEntry('${e.id}')" style="cursor:pointer">
+        <div style="display:flex;align-items:center;gap:9px"><span>✏️</span><div class="sr-label" style="color:var(--accent);font-weight:600;">Editar lançamento</div></div>
+        <div class="profile-chev">›</div>
+      </div>
+      <div class="settings-row" onclick="confirmDelete('${e.id}')" style="cursor:pointer">
+        <div style="display:flex;align-items:center;gap:9px"><span>🗑</span><div class="sr-label" style="color:var(--red)">Excluir lançamento</div></div>
+        <div class="profile-chev">›</div>
+      </div>
+    </div>`;
   } else {
     html+=`<div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;">Editar Parcelamento</div>
     <div class="gcard" style="margin-bottom:8px">
       <div class="settings-row" onclick="editInstValue('${e.instId}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:9px"><span>💰</span><div class="sr-label">Editar valor da parcela</div></div><div class="profile-chev">›</div></div>
       <div class="settings-row" onclick="editInstQty('${e.instId}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:9px"><span>🔢</span><div class="sr-label">Editar quantidade de parcelas</div></div><div class="profile-chev">›</div></div>
+      <div class="settings-row" onclick="editInstDesc('${e.instId}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:9px"><span>✏️</span><div class="sr-label">Editar nome/descrição</div></div><div class="profile-chev">›</div></div>
       <div class="settings-row" onclick="delInstallment('${e.instId}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:9px"><span>🗑</span><div class="sr-label" style="color:var(--red)">Excluir parcelamento completo</div></div><div class="profile-chev">›</div></div>
     </div>`;
   }
   document.getElementById('detailBody').innerHTML=html;
   document.getElementById('detailModal').classList.add('open');
+}
+
+// ════════════════════════════════════════
+//  EDIT ENTRY — editar lançamento normal
+// ════════════════════════════════════════
+function openEditEntry(entryId){
+  const e=DB.entries.find(x=>x.id===entryId);
+  if(!e){alert('Lançamento não encontrado.');return;}
+  closeDetail();
+  // Monta grade de categorias com seleção atual
+  let selCatEdit=e.cat||'outros';
+  const catGridHtml=CATS.map(c=>`<button
+    id="editCatBtn_${c.id}"
+    onclick="selectEditCat('${c.id}')"
+    style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;border-radius:10px;border:1.5px solid ${selCatEdit===c.id?'var(--accent)':'var(--border)'};background:${selCatEdit===c.id?'var(--accent-light)':'var(--bg)'};cursor:pointer;font-family:'Inter',sans-serif;min-width:0;">
+    <div style="font-size:.62rem;font-weight:800;color:${c.color}">${c.label.slice(0,3)}</div>
+    <div style="font-size:.5rem;font-weight:600;color:var(--muted);text-align:center;line-height:1.2;">${c.label}</div>
+  </button>`).join('');
+
+  const modalHtml=`
+  <div class="modal-overlay open" id="editEntryModal" onclick="if(event.target===this)closeEditEntry()">
+    <div class="modal-sheet" style="max-height:90vh;overflow-y:auto;">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Editar Lançamento</div>
+
+      <label class="form-label">Descrição</label>
+      <input class="form-input" id="editDesc" value="${e.desc.replace(/"/g,'&quot;')}" placeholder="Nome do lançamento">
+
+      <label class="form-label">Valor (R$)</label>
+      <input class="form-input" id="editVal" type="number" inputmode="decimal" step="0.01" value="${e.value}" placeholder="0,00">
+
+      <label class="form-label" style="margin-bottom:8px">Categoria</label>
+      <div id="editCatGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:14px;">
+        ${catGridHtml}
+      </div>
+      <input type="hidden" id="editCatValue" value="${selCatEdit}">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div>
+          <label class="form-label">Mês</label>
+          <select class="form-input" id="editMonth" style="-webkit-appearance:none;">
+            ${MONTHS.map((m,i)=>`<option value="${i}"${i===e.month?' selected':''}>${m}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Ano</label>
+          <select class="form-input" id="editYear" style="-webkit-appearance:none;">
+            ${YEARS.map(y=>`<option value="${y}"${y===e.year?' selected':''}>${y}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="saveEditEntry('${entryId}')" style="width:100%;margin-bottom:10px;">Salvar alterações</button>
+      <button class="btn-ghost" onclick="closeEditEntry()" style="width:100%;">Cancelar</button>
+    </div>
+  </div>`;
+
+  // Injeta o modal no body
+  const div=document.createElement('div');
+  div.id='editEntryWrapper';
+  div.innerHTML=modalHtml;
+  document.body.appendChild(div);
+  // Salva cat selecionada em closure
+  window._editCatSel=e.cat||'outros';
+}
+
+function selectEditCat(id){
+  window._editCatSel=id;
+  document.getElementById('editCatValue').value=id;
+  document.querySelectorAll('[id^="editCatBtn_"]').forEach(btn=>{
+    const isSelected=btn.id===`editCatBtn_${id}`;
+    const c=CATS.find(x=>`editCatBtn_${x.id}`===btn.id);
+    btn.style.borderColor=isSelected?'var(--accent)':'var(--border)';
+    btn.style.background=isSelected?'var(--accent-light)':'var(--bg)';
+  });
+}
+
+function saveEditEntry(entryId){
+  const e=DB.entries.find(x=>x.id===entryId);
+  if(!e){alert('Lançamento não encontrado.');return;}
+  const desc=document.getElementById('editDesc').value.trim();
+  const val=parseFloat(document.getElementById('editVal').value);
+  const cat=document.getElementById('editCatValue').value||'outros';
+  const month=parseInt(document.getElementById('editMonth').value);
+  const year=parseInt(document.getElementById('editYear').value);
+  if(!desc){alert('Preencha a descrição!');return;}
+  if(isNaN(val)||val<=0){alert('Informe um valor válido!');return;}
+  e.desc=desc;
+  e.value=val;
+  e.cat=cat;
+  e.month=month;
+  e.year=year;
+  // Navega para o mês editado se mudou
+  if(month!==currentMonth||year!==currentYear){currentMonth=month;currentYear=year;}
+  save();
+  closeEditEntry();
+  renderHome();
+}
+
+function closeEditEntry(){
+  const w=document.getElementById('editEntryWrapper');
+  if(w)w.remove();
+}
+
+function editInstDesc(instId){
+  const inst=DB.installments.find(i=>i.id===instId);if(!inst)return;
+  const nv=prompt(`Nome atual: "${inst.desc}"\nNovo nome:`);
+  if(nv===null)return;
+  const v=nv.trim();
+  if(!v){alert('Nome inválido');return;}
+  inst.desc=v;
+  save();closeDetail();if(currentTab==='home')renderHome();else renderCards();
 }
 function closeDetail(){document.getElementById('detailModal').classList.remove('open');}
 function applyStatus(id,s){DB.statuses[id]=s;save();closeDetail();if(currentTab==='home')renderHome();else renderCards();}
